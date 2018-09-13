@@ -1,18 +1,9 @@
---- ../../ns-3-dev/src/network/model/node.cc	2018-09-13 11:20:37.567447020 -0700
-+++ node.cc	2018-09-13 16:14:56.702263394 -0700
-@@ -18,7 +18,6 @@
-  * Authors: George F. Riley<riley@ece.gatech.edu>
-  *          Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
-  */
-- 
- #include "node.h"
- #include "node-list.h"
- #include "net-device.h"
-@@ -31,6 +30,8 @@
+--- node.cc.orig	2018-09-13 16:43:57.258920788 -0700
++++ node.cc	2018-09-13 16:53:07.291932115 -0700
+@@ -31,6 +31,7 @@
  #include "ns3/assert.h"
  #include "ns3/global-value.h"
  #include "ns3/boolean.h"
-+#include "ns3/simulator.h"
 +#include "ns3/fate-ipv4protocol.h"
  
  namespace ns3 {
@@ -52,20 +43,13 @@
  
  void
  Node::RegisterProtocolHandler (ProtocolHandler handler, 
-@@ -304,12 +315,34 @@
-   NS_LOG_FUNCTION (this << device << packet << protocol << &from << &to << packetType << promiscuous);
-   NS_ASSERT_MSG (Simulator::GetContext () == GetId (), "Received packet with erroneous context ; " <<
-                  "make sure the channels in use are correctly updating events context " <<
-                  "when transfering events from one node to another.");
-   NS_LOG_DEBUG ("Node " << GetId () << " ReceiveFromDevice:  dev "
+@@ -309,6 +320,24 @@
                          << device->GetIfIndex () << " (type=" << device->GetInstanceTypeId ().GetName ()
                          << ") Packet UID " << packet->GetUid ());
    bool found = false;
- 
-+
-+  //let fate have a chance
-+  Ptr<Packet> packet2 = 0;// = packet->Copy();
-+      if(m_fateExists) { 
++//FATE
++  Ptr<Packet> packet2 = 0;
++      if(m_fateExists) {
 +//std::cout << " Pre convert original pkt:";
 +//packet->Print(std::cout);
 +//std::cout << "\n";
@@ -73,21 +57,18 @@
 +          uint32_t ms = packet->GetSerializedSize();
 +          std::vector<uint8_t> pktvect(ms);
 +          packet->Serialize((uint8_t *) &pktvect[0], ms);
-+          
++
 +          m_fateHandler (device, pktvect, protocol, from, to, packetType, promiscuous); //fateprotocol
 +
 +         packet2 = Create<Packet>((uint8_t *) &pktvect[0],pktvect.size(), true);
 +//std::cout << " Post convert original pkt:";
 +//packet2->Print(std::cout);
 +//std::cout << "\n\n";
-+
 +      } else { packet2 = packet->Copy(); }
-+
-+
+ 
    for (ProtocolHandlerList::iterator i = m_handlers.begin ();
         i != m_handlers.end (); i++)
-     {
-@@ -321,7 +354,7 @@
+@@ -321,7 +350,7 @@
              {
                if (promiscuous == i->promiscuous)
                  {
@@ -96,8 +77,3 @@
                    found = true;
                  }
              }
-@@ -369,3 +402,4 @@
-  
- 
- } // namespace ns3
-+
