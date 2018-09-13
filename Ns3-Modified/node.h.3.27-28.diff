@@ -1,0 +1,34 @@
+--- ../../ns-3-dev/src/network/model/node.h	2018-09-13 11:20:37.567447020 -0700
++++ node.h	2018-09-13 16:14:56.702263394 -0700
+@@ -155,8 +155,8 @@
+    *                   this value is only valid for promiscuous mode
+    *                   protocol handlers.
+    */
+   typedef Callback<void,Ptr<NetDevice>, Ptr<const Packet>,uint16_t,const Address &, const Address &, NetDevice::PacketType> ProtocolHandler;
++  typedef Callback<void,Ptr<NetDevice>, std::vector<uint8_t> & ,uint16_t,const Address &, const Address &, NetDevice::PacketType, bool> FateHandler;
+   /**
+    * \param handler the handler to register
+    * \param protocolType the type of protocol this handler is 
+@@ -174,8 +174,9 @@
+                                 uint16_t protocolType,
+                                 Ptr<NetDevice> device,
+                                 bool promiscuous=false);
++  void RegisterFateProtocolHandler (FateHandler handler);
++
++   /* \param handler the handler to unregister
+    *
+    * After this call returns, the input handler will never
+    * be invoked anymore.
+@@ -287,9 +288,12 @@
+   std::vector<Ptr<NetDevice> > m_devices; //!< Devices associated to this node
+   std::vector<Ptr<Application> > m_applications; //!< Applications associated to this node
+   ProtocolHandlerList m_handlers; //!< Protocol handlers in the node
++  FateHandler m_fateHandler; //!< Protocol handlers in the node
+   DeviceAdditionListenerList m_deviceAdditionListeners; //!< Device addition listeners in the node
++  bool m_fateExists;
+ };
+ 
+ } // namespace ns3
+ 
+ #endif /* NODE_H */
++
