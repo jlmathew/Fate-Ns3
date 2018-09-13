@@ -1,0 +1,70 @@
+## -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+def build(bld):
+    module = bld.create_ns3_module('applications', ['internet', 'fate', 'config-store','stats'])
+    module.source = [
+        'model/bulk-send-application.cc',
+        'model/onoff-application.cc',
+        'model/packet-sink.cc',
+        'model/udp-client.cc',
+        'model/udp-server.cc',
+        'model/seq-ts-header.cc',
+        'model/udp-trace-client.cc',
+        'model/packet-loss-counter.cc',
+        'model/udp-echo-client.cc',
+        'model/udp-echo-server.cc',
+        'model/application-packet-probe.cc',
+        'helper/bulk-send-helper.cc',
+        'helper/on-off-helper.cc',
+        'helper/packet-sink-helper.cc',
+        'helper/udp-client-server-helper.cc',
+        'helper/udp-echo-helper.cc',
+       	'model/global-fate.cc',
+       	'model/udp-fate-client-cbr.cc',
+        'model/udp-fate-client-zipf.cc',
+        'model/udp-fate-client-file.cc',
+        'model/udp-fate-client-video.cc',
+        'model/udp-fate-client-video2.cc',
+        'helper/udp-fate-helper.cc',
+        'model/udp-fate-server.cc',
+        'model/udp-fate-video-server.cc',
+
+        ]
+
+    applications_test = bld.create_ns3_module_test_library('applications')
+    applications_test.source = [
+        'test/udp-client-server-test.cc',
+        ]
+
+    headers = bld(features='ns3header')
+    headers.module = 'applications'
+    headers.source = [
+        'model/bulk-send-application.h',
+        'model/onoff-application.h',
+        'model/packet-sink.h',
+        'model/udp-client.h',
+        'model/udp-server.h',
+        'model/seq-ts-header.h',
+        'model/udp-trace-client.h',
+        'model/packet-loss-counter.h',
+        'model/udp-echo-client.h',
+        'model/udp-echo-server.h',
+        'model/application-packet-probe.h',
+        'helper/bulk-send-helper.h',
+        'helper/on-off-helper.h',
+        'helper/packet-sink-helper.h',
+        'helper/udp-client-server-helper.h',
+        'helper/udp-echo-helper.h',
+       	'model/global-fate.h',
+       	'model/udp-fate-client-cbr.h',
+        'model/udp-fate-client-zipf.h',
+        'model/udp-fate-client-file.h',
+        'model/udp-fate-client-video.h',
+        'model/udp-fate-client-video2.h',
+        'helper/udp-fate-helper.h',
+        'model/udp-fate-server.h',
+        'model/udp-fate-video-server.h',
+
+        ]
+
+    bld.ns3_python_bindings()

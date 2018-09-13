@@ -1,0 +1,99 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+# def options(opt):
+#     pass
+
+# def configure(conf):
+#     conf.check_nonfatal(header_name='stdint.h', define_name='HAVE_STDINT_H')
+
+def build(bld):
+    #module = bld.create_ns3_module('fate', ['core','network','internet'])
+    module = bld.create_ns3_module('fate', ['core','internet'])
+    module.source = [
+        #'model/fate.cc',
+        'helper/fate-helper.cc', 
+        'helper/fateipv4-helper.cc', 
+        'model/CacheBasicManager.cc',
+        'model/CacheBasicManager2.cc',
+        'model/NodeManager.cc',
+        'model/UtilityFunctionMod.cc',
+        'model/PacketTypeBase.cc',
+        'model/UniversalGlobals.cc',
+        'model/UtilityFunctionNoMod.cc',
+        'model/ns3/ForwardNs3Ipv4Manager.cc',
+        'model/ns3/GlobalModulesNs3.cc',
+        'model/ForwardBasicManager.cc',
+        'model/UtilityAggregateBase.cc',
+        'model/UtilityFunctionsAggregate.cc',
+        'model/GlobalModuleBase.cc',
+        'model/pugixml.cc',
+        'model/UtilityConfigXml.cc',
+        'model/UtilityHandlerBase.cc',
+        'model/GlobalModulesLinux.cc',
+        'model/SecurityBasicManager.cc',
+        'model/UtilityExternalModule.cc',
+        'model/ModuleManager.cc',
+        'model/StoreManager.cc',
+        'model/PhyDef.cc',
+        'model/UtilityFunctionGenerator.cc',
+	'model/ns3/fate-header.cc',
+	'model/ns3/fateIpv4-interface.cc',
+	'model/ns3/fateMac48-interface.cc',
+	'model/ns3/fate-protocol.cc',
+	'model/ns3/fate-ipv4protocol.cc',
+        ]
+
+    module_test = bld.create_ns3_module_test_library('fate')
+    module_test.source = [
+        'test/fate-test-suite.cc',
+        ]
+
+    headers = bld(features='ns3header')
+    headers.module = 'fate'
+    headers.source = [
+        #'model/fate.h',
+        'model/PhyDef.h',
+        'helper/fate-helper.h', 
+        'helper/fateipv4-helper.h', 
+        'model/BaseStorage.h',
+        'model/GlobalModuleBase.h',
+        'model/pugiconfig.h',
+        'model/UtilityAggregateBase.h',
+        'model/UtilityFunctionMod.h',
+        'model/CacheBasicManager.h',
+        'model/CacheBasicManager2.h',
+        'model/GlobalModulesLinux.h',
+        'model/pugixml.h',
+        'model/UtilityConfigBase.h',
+        'model/UtilityFunctionNoMod.h',
+        'model/ContentName.h',
+        'model/IcnName.h',
+        'model/RangeData.h',
+        'model/UtilityConfigXml.h',
+        'model/UtilityFunctionsAggregate.h',
+        'model/EventHandlerBase.h',
+        'model/ModuleManager.h',
+        'model/SecurityBasicManager.h',
+        'model/UtilityDeviceModule.h',
+        'model/UtilityHandlerBase.h',
+        'model/NodeManager.h',
+        'model/StoreManager.h',
+        'model/UtilityExternalModule.h',
+        'model/ns3/ForwardNs3Ipv4Manager.h',
+        'model/ns3/GlobalModulesNs3.h',
+        'model/ForwardBasicManager.h',
+        'model/PacketTypeBase.h',
+        'model/UniqueRegister.h',
+        'model/UtilityFunctionGenerator.h',
+	'model/ns3/fate-header.h',
+	'model/ns3/fateIpv4-interface.h',
+	'model/ns3/fateMac48-interface.h',
+	'model/ns3/fate-protocol.h',
+	'model/ns3/fate-ipv4protocol.h',
+        ]
+
+    if bld.env.ENABLE_EXAMPLES:
+        bld.recurse('examples')
+
+    # bld.ns3_python_bindings()
+
