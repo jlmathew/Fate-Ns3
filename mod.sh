@@ -102,6 +102,8 @@ patch node.cc < ../../../../Fate-Ns3/Ns3-Modified/node.cc.3.28.patch
 
 #add scratch files
 
+#add xml files!
+
 # rerun waf
 
 ./waf configure --enable-examples --enable-mpi --enable-tests
