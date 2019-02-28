@@ -17,18 +17,20 @@
  *
  * Author: James Mathewson <jlmathew@soe.ucsc.edu> 
  */
-
-
-#ifndef UDP_FATE_FILE_CLIENT_H
-#define UDP_FATE_FILE_CLIENT_H
+#ifndef UDP_FATE_FILE_ZIPF_CLIENT_H
+#define UDP_FATE_FILE_ZIPF_CLIENT_H
 
 #include "ns3/application.h"
 #include "ns3/event-id.h"
 #include "ns3/ptr.h"
 #include "ns3/ipv4-address.h"
 #include "ns3/traced-callback.h"
-#include "ns3/IcnName.h"
-#include "ns3/PacketTypeBase.h"
+#include "ns3/random-variable-stream.h"
+#include "ns3/integer.h"
+#include "ns3/global-fate.h"
+#include <vector>
+#include "ns3/fateIpv4-interface.h"
+
 namespace ns3 {
 
 class Socket;
@@ -40,7 +42,7 @@ class Packet;
  *
  * Every packet sent should be returned by the server and received here.
  */
-class UdpFateFileClient : public Application 
+class UdpFateFileZipfClient : public Application 
 {
 public:
   /**
@@ -49,9 +51,9 @@ public:
    */
   static TypeId GetTypeId (void);
 
-  UdpFateFileClient ();
+  UdpFateFileZipfClient ();
 
-  virtual ~UdpFateFileClient ();
+  virtual ~UdpFateFileZipfClient ();
 
   /**
    * \brief set the remote address and port
@@ -73,17 +75,14 @@ public:
   void SetPktPayload (uint8_t *fill, uint32_t dataSize);
 
   void SetPktPayload(const IcnName<std::string> &name);
+
   void SetTimestamp(bool timestamp);
 
   uint32_t
   GetDataSize() const;
-  void
-  PrintStats(std::ostream &os) const;
+void
+PrintStats(std::ostream &os) const;
 
-  void
-	  PrintHeader() const {}
-  void
-	  PrintFileSegment() const {}
 protected:
   virtual void DoDispose (void);
 
@@ -91,7 +90,7 @@ private:
 
   virtual void StartApplication (void);
   virtual void StopApplication (void);
-  void ParseFileSegments();
+
   /**
    * \brief Schedule the next packet transmission
    * \param dt time interval between packets.
@@ -120,10 +119,10 @@ private:
 
   uint32_t m_sent; //!< Counter for sent packets
   Ptr<Socket> m_socket; //!< Socket
+  std::vector<Ptr<Socket> > m_vectSocket;
   Address m_peerAddress; //!< Remote peer address
   uint16_t m_peerPort; //!< Remote peer port
   EventId m_sendEvent; //!< Event to send the next packet
-
   /// Callbacks for tracing the packet Tx events
   TracedCallback<Ptr<const Packet> > m_txTrace;
 
@@ -131,11 +130,12 @@ private:
 
   uint32_t m_segCnt;
   uint32_t m_fileCnt;
-  std::string m_maxFiles;
+  uint32_t m_maxFiles;
   bool m_timestamp;
+  double m_alpha;
+  Ptr<ZipfRandomVariable> m_zipf;
   //IcnName<std::string> m_pktName;
-
-  //local stats
+    //local stats
   uint64_t m_statNumPktsTx; //interest
   uint64_t m_statNumDataPktRx; //data
   uint64_t m_statNumIRPktRx; //interest response
@@ -144,9 +144,14 @@ private:
   uint64_t m_statTotalIrRxSize;
   uint64_t m_statNumErrorPkts;
   Time m_statTotalTime;
+  bool m_nStaticDest;
+  uint64_t m_startHops;
+  uint64_t m_totalHops;
+  uint32_t m_fileNumStart; 
+  std::string m_minMatchType;
+  std::string m_xmlpayload;
+  std::string m_matchName;
 
-  //file sizes
-  std::vector<uint32_t> m_fileSizes;
 };
 
 } // namespace ns3

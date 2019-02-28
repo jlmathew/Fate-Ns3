@@ -31,7 +31,7 @@
 #include "ns3/uinteger.h"
 #include "ns3/trace-source-accessor.h"
 #include "udp-fate-client-file.h"
-
+#include "ns3/string.h"
 #include "ns3/IcnName.h"
 #include <iostream>
 #include <ostream>
@@ -80,10 +80,10 @@ UdpFateFileClient::GetTypeId (void)
                    UintegerValue (1),
                    MakeUintegerAccessor (&UdpFateFileClient::m_segSize),
                    MakeUintegerChecker<uint32_t> ())
-    .AddAttribute ("NumFiles", "Number of unique files sent",
-                   UintegerValue (1),
-                   MakeUintegerAccessor (&UdpFateFileClient::m_maxFiles),
-                   MakeUintegerChecker<uint32_t> ())
+    .AddAttribute ("NumFiles", "Number of unique files sent stored in string",
+                   StringValue (""),
+                   MakeStringAccessor (&UdpFateFileClient::m_maxFiles),
+                   MakeStringChecker ())
     .AddAttribute ("AddTimeStamp", "Add a timestamp to each packet",
                    BooleanValue (false),
                    MakeBooleanAccessor (&UdpFateFileClient::m_timestamp),
@@ -181,10 +181,14 @@ UdpFateFileClient::StartApplication (void)
           NS_ASSERT_MSG (false, "Incompatible address type: " << m_peerAddress);
         }
     }
-
+  ParseFileSegments(); 
   m_socket->SetRecvCallback (MakeCallback (&UdpFateFileClient::HandleRead, this));
   m_socket->SetAllowBroadcast (true);
   ScheduleTransmit (Seconds (0.));
+}
+void
+UdpFateFileClient::ParseFileSegments()
+{
 }
 
 void 
@@ -281,7 +285,7 @@ UdpFateFileClient::Send (void)
 
   if (0 == m_segCnt) {
     ++m_fileCnt;
-     m_fileCnt %= m_maxFiles;   
+     m_fileCnt %= 1; // m_maxFiles;   
   }
 
   //add identifying file id and segment id, in name component

@@ -33,44 +33,48 @@
 #include "ns3/uinteger.h"
 #include "ns3/PacketTypeBase.h"
 #include "ns3/fateIpv4-interface.h"
-#include "udp-fate-server.h"
+#include "udp-fate-file-zipf-server.h"
 #include "ns3/string.h"
 #include "ns3/pointer.h"
 namespace ns3 {
 
-NS_LOG_COMPONENT_DEFINE ("UdpFateServerApplication");
+NS_LOG_COMPONENT_DEFINE ("UdpFateFileZipfServerApplication");
 
-NS_OBJECT_ENSURE_REGISTERED (UdpFateServer);
+NS_OBJECT_ENSURE_REGISTERED (UdpFateFileZipfServer);
 
 TypeId
-UdpFateServer::GetTypeId (void)
+UdpFateFileZipfServer::GetTypeId (void)
 {
-  static TypeId tid = TypeId ("ns3::UdpFateServer")
+  static TypeId tid = TypeId ("ns3::UdpFateFileZipfServer")
     .SetParent<Application> ()
     .SetGroupName("Applications")
-    .AddConstructor<UdpFateServer> ()
+    .AddConstructor<UdpFateFileZipfServer> ()
     .AddAttribute ("Port", "Port on which we listen for incoming packets.",
                    UintegerValue (100),
-                   MakeUintegerAccessor (&UdpFateServer::m_port),
+                   MakeUintegerAccessor (&UdpFateFileZipfServer::m_port),
                    MakeUintegerChecker<uint16_t> ())
     .AddAttribute ("ReturnSize", "Size of the data attribute in the packet, using <DATA> attribute tag.",
                    UintegerValue (1),
-                   MakeUintegerAccessor (&UdpFateServer::m_size),
+                   MakeUintegerAccessor (&UdpFateFileZipfServer::m_size),
                    MakeUintegerChecker<uint16_t> ())
     .AddAttribute ("MinMatchName", 
                    "Exact Packet Name with minimal matching attributes",
                    StringValue (""),
-                   MakeStringAccessor (&UdpFateServer::m_setNameMatch),
-                   MakeStringChecker ())  ;
+                   MakeStringAccessor (&UdpFateFileZipfServer::m_setNameMatch),
+                   MakeStringChecker ())  
+    .AddAttribute ("NumSegmentsFileName", "File having Number of packet segments which compose a file",
+                   StringValue (""),
+                   MakeStringAccessor (&UdpFateFileZipfServer::m_segSizeFile),
+                   MakeStringChecker ());
   return tid;
 }
 void
-UdpFateServer::GetMatchNameAndPort(std::string &matchName, uint16_t &port)
+UdpFateFileZipfServer::GetMatchNameAndPort(std::string &matchName, uint16_t &port)
 {
    matchName = m_setNameMatch;
    port = m_port;
 }
-UdpFateServer::UdpFateServer ()
+UdpFateFileZipfServer::UdpFateFileZipfServer ()
 {
   NS_LOG_FUNCTION (this);
   m_statNumPktsTx =0;
@@ -83,7 +87,7 @@ UdpFateServer::UdpFateServer ()
   m_statTotalIntRxSize=0;
 }
 
-UdpFateServer::~UdpFateServer()
+UdpFateFileZipfServer::~UdpFateFileZipfServer()
 {
   NS_LOG_FUNCTION (this);
   m_socket = 0;
@@ -92,7 +96,7 @@ UdpFateServer::~UdpFateServer()
 }
 
 void
-UdpFateServer::DoDispose (void)
+UdpFateFileZipfServer::DoDispose (void)
 {
   NS_LOG_FUNCTION (this);
   Application::DoDispose ();
@@ -100,9 +104,21 @@ UdpFateServer::DoDispose (void)
 
 
 void 
-UdpFateServer::StartApplication (void)
+UdpFateFileZipfServer::StartApplication (void)
 {
   NS_LOG_FUNCTION (this);
+  std::string segfile = m_segSizeFile;
+  //uint32_t first=0, found=0;
+  //while (segfile.size() && found != std::string::npos)
+    std::stringstream ss(m_segSizeFile);
+    uint32_t val=0;
+    while (ss >> val) {
+    m_segSize.push_back(val);
+    //found = segfile.find(" ", first);
+    //uint32_t val = std::stoi (segfile.substr(first,found));
+    //m_segSize.push_back(val);
+
+  }
 
   if (m_socket == 0)
     {
@@ -146,12 +162,12 @@ UdpFateServer::StartApplication (void)
         }
     }
 
-  m_socket->SetRecvCallback (MakeCallback (&UdpFateServer::HandleRead, this));
-  m_socket6->SetRecvCallback (MakeCallback (&UdpFateServer::HandleRead, this));
+  m_socket->SetRecvCallback (MakeCallback (&UdpFateFileZipfServer::HandleRead, this));
+  m_socket6->SetRecvCallback (MakeCallback (&UdpFateFileZipfServer::HandleRead, this));
 }
 
 void 
-UdpFateServer::StopApplication ()
+UdpFateFileZipfServer::StopApplication ()
 {
   NS_LOG_FUNCTION (this);
 
@@ -167,13 +183,13 @@ UdpFateServer::StopApplication ()
     }
 }
 void
-UdpFateServer::SetPartialMatch(const std::list< std::pair< std::string, std::string > > &match)
+UdpFateFileZipfServer::SetPartialMatch(const std::list< std::pair< std::string, std::string > > &match)
 {
    //m_partMatch = match;
 }
 
 void 
-UdpFateServer::HandleRead (Ptr<Socket> socket)
+UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
 {
   NS_LOG_FUNCTION (this << socket);
 
@@ -221,14 +237,55 @@ UdpFateServer::HandleRead (Ptr<Socket> socket)
       //reply and stats
       if (match && (fatePkt.GetPacketPurpose() == PktType::INTERESTPKT)) {
         fatePkt.SetPacketPurpose(PktType::DATAPKT);
-        std::string data(m_size, 'X');
-        fatePkt.SetNamedAttribute("DATA", data, false);
+	//single or multiple packets?
+	bool exist = false;
+	bool header = GetNamedBoolAttribute("Header", exist);
+	uint32 maxSegment = 1 ;
+	if (` < m_segSize.size()) {
+           maxSegment = m_segSize[fileNum];
+	}
+	if (header) {  //handle both segments and byte range requests
+           fatePkt.SetNamedUnsignedAttribute("Segments", maxSegment);
+	   fatePkt.SetNamedUnsignedAttribute("Byte Size", (maxSegment)*m_size);
+	   fatePkt.SetNamedUnsigendAttribute("SegSize", m_size );
+	} else {  //data segment
+           uint32_t segment=0;
+	   uint64_t byteStart = 0;
+	   uint64_t byteEnd = 0;
+	   bool segExists=false;
+	   segExists = GetNamedUnsignedAttribute("Segment", segment);
+	   byteRngExists = GetNamedUnsignedAttribute("ByteStart", byteStart);
+	   byteRngExists |= GetNamedUnsignedAttribute("ByteEnd", byteEnd);
+	   if (segExists || byteRngExists) {
+               if (segment > maxSegment ) {
+                fatePkt.SetPacketPurpose(PktType::INTERESTRESPONSEPKT);
+	        fatePkt.SetNamedAttribute("ErrorCode", "Incomplete: Segment not requested");
+
+	       } else if (((byteEnd-byteStart+1) > m_size) ||(byteEnd < byteStart) || (byteEnd > ((maxSegment)*m_size))) {
+                fatePkt.SetPacketPurpose(PktType::INTERESTRESPONSEPKT);
+	        fatePkt.SetNamedAttribute("ErrorCode", "Incomplete: Byte Range out of range");
+		       
+	 	} else { //all good
+		  if (byteRngExists) {
+                    std::string data(byteEnd-byteStart+1, 'X');
+                    fatePkt.SetNamedAttribute("DATA", data, false);
+		  } else { //segment
+                    std::string data(m_size, 'X');
+                    fatePkt.SetNamedAttribute("DATA", data, false);
+		  }
+	       }
+	   } else { //error, need segment
+              fatePkt.SetPacketPurpose(PktType::INTERESTRESPONSEPKT);
+	      fatePkt.SetNamedAttribute("ErrorCode", "Incomplete: Segment not requested");
+	   }
+	}
         m_statNumDataPktTx++;
         //m_statTotalDataTxSize += packet->GetSize();
       } else if (fatePkt.GetPacketPurpose() == PktType::INTERESTPKT) {
          //if false, it is a missed interestresponse packet
         //NS_LOG_INFO("BAD PKT:" << fatePkt);
         fatePkt.SetPacketPurpose(PktType::INTERESTRESPONSEPKT);
+	      fatePkt.SetNamedAttribute("ErrorCode", "Error: Correct server not found");
         //m_statTotalNotMatchTxSize += packet->GetSize();
         m_statNumNotMatchPktTx++;
         //assert(0);
@@ -238,6 +295,7 @@ UdpFateServer::HandleRead (Ptr<Socket> socket)
         return;
       }
 
+      //FIXME TODO should we only do this for a successful hit?
       //mark it as hitting the server/producer
       fatePkt.SetUnsignedNamedAttribute("ServerHitNodeName", GetNode()->GetId(), false);
       std::string retChain;
@@ -300,7 +358,7 @@ fatePkt.SetNamedAttribute("Ipv4Dst",dstAddr  );
 }
 
 void
-UdpFateServer::PrintStats(std::ostream &os) const
+UdpFateFileZipfServer::PrintStats(std::ostream &os) const
 {
   os << "m_statNumPktsTx:" << m_statNumPktsTx << "\n";
   os << "m_statNumIntPktRx:" << m_statNumIntPktRx << "\n";
