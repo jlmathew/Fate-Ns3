@@ -213,7 +213,7 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
       PktType fatePkt;
       FateIpv4Interface::Ipv4ToFatePkt(packet, 0, fatePkt);
       //bool valid = FateIpv4Interface::Ipv4ToFatePkt(packet, 0, fatePkt);
-   std::cout << "servera:" << fatePkt << "\n";
+   std::cout << "server z:" << fatePkt << "\n";
       
       fatePkt.ClearTempData();
       packet->RemoveAllPacketTags ();
@@ -221,11 +221,13 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
      
       //Check if correct matching name
       bool match = true;
+      uint64_t fileNum=0;
       if (!m_setNameMatch.empty()) {
          IcnName < std::string> matchName, pktName;
          matchName.SetFullName(m_setNameMatch);
          pktName = fatePkt.GetName();
          match = pktName.PartialAttributeMatch(matchName);
+	 match |= pktName.GetUniqAttribute("FileNum", fileNum);
       }
       //if true, it is a data pkt
       //rx itnerest stats
@@ -238,24 +240,25 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
       if (match && (fatePkt.GetPacketPurpose() == PktType::INTERESTPKT)) {
         fatePkt.SetPacketPurpose(PktType::DATAPKT);
 	//single or multiple packets?
-	bool exist = false;
-	bool header = GetNamedBoolAttribute("Header", exist);
-	uint32 maxSegment = 1 ;
-	if (` < m_segSize.size()) {
+	uint64_t exist = 0;
+	bool header = fatePkt.GetUnsignedNamedAttribute("Header", exist,false);
+	uint32_t maxSegment = 1 ;
+	if ( m_segSize.size()) {
            maxSegment = m_segSize[fileNum];
 	}
 	if (header) {  //handle both segments and byte range requests
-           fatePkt.SetNamedUnsignedAttribute("Segments", maxSegment);
-	   fatePkt.SetNamedUnsignedAttribute("Byte Size", (maxSegment)*m_size);
-	   fatePkt.SetNamedUnsigendAttribute("SegSize", m_size );
+           fatePkt.SetUnsignedNamedAttribute("Segments", maxSegment);
+	   fatePkt.SetUnsignedNamedAttribute("TotalSize", (maxSegment)*m_size);
+	   fatePkt.SetUnsignedNamedAttribute("SegSize", m_size );
 	} else {  //data segment
-           uint32_t segment=0;
+           uint64_t segment=0;
 	   uint64_t byteStart = 0;
 	   uint64_t byteEnd = 0;
 	   bool segExists=false;
-	   segExists = GetNamedUnsignedAttribute("Segment", segment);
-	   byteRngExists = GetNamedUnsignedAttribute("ByteStart", byteStart);
-	   byteRngExists |= GetNamedUnsignedAttribute("ByteEnd", byteEnd);
+	   bool byteRngExists=false;
+	   segExists = fatePkt.GetUnsignedNamedAttribute("Segment", segment);
+	   byteRngExists = fatePkt.GetUnsignedNamedAttribute("ByteStart", byteStart);
+	   byteRngExists |= fatePkt.GetUnsignedNamedAttribute("ByteEnd", byteEnd);
 	   if (segExists || byteRngExists) {
                if (segment > maxSegment ) {
                 fatePkt.SetPacketPurpose(PktType::INTERESTRESPONSEPKT);
