@@ -62,10 +62,12 @@ UdpFateFileZipfServer::GetTypeId (void)
                    StringValue (""),
                    MakeStringAccessor (&UdpFateFileZipfServer::m_setNameMatch),
                    MakeStringChecker ())  
-    .AddAttribute ("NumSegmentsFileName", "File having Number of packet segments which compose a file",
+    .AddAttribute ("FileSizes", 
+                   "FileSize file name",
                    StringValue (""),
                    MakeStringAccessor (&UdpFateFileZipfServer::m_segSizeFile),
-                   MakeStringChecker ());
+                   MakeStringChecker ()) ;
+
   return tid;
 }
 void
@@ -107,17 +109,14 @@ void
 UdpFateFileZipfServer::StartApplication (void)
 {
   NS_LOG_FUNCTION (this);
-  std::string segfile = m_segSizeFile;
-  //uint32_t first=0, found=0;
-  //while (segfile.size() && found != std::string::npos)
+  if (m_segSizeFile.empty()) {
+    m_segSize.push_back(1);
+  } else {
     std::stringstream ss(m_segSizeFile);
     uint32_t val=0;
     while (ss >> val) {
     m_segSize.push_back(val);
-    //found = segfile.find(" ", first);
-    //uint32_t val = std::stoi (segfile.substr(first,found));
-    //m_segSize.push_back(val);
-
+    }
   }
 
   if (m_socket == 0)
@@ -161,7 +160,6 @@ UdpFateFileZipfServer::StartApplication (void)
             }
         }
     }
-
   m_socket->SetRecvCallback (MakeCallback (&UdpFateFileZipfServer::HandleRead, this));
   m_socket6->SetRecvCallback (MakeCallback (&UdpFateFileZipfServer::HandleRead, this));
 }
@@ -228,7 +226,8 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
          pktName = fatePkt.GetName();
          match = pktName.PartialAttributeMatch(matchName);
 	 match |= pktName.GetUniqAttribute("FileNum", fileNum);
-      }
+      }  //FIXME TODO above, set file num
+
       //if true, it is a data pkt
       //rx itnerest stats
       if (fatePkt.GetPacketPurpose() == PktType::INTERESTPKT) {
@@ -243,9 +242,12 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
 	uint64_t exist = 0;
 	bool header = fatePkt.GetUnsignedNamedAttribute("Header", exist,false);
 	uint32_t maxSegment = 1 ;
-	if ( m_segSize.size()) {
+	if ( m_segSize.size() < fileNum) {
            maxSegment = m_segSize[fileNum];
+	} else {
+           maxSegment = m_segSize[m_segSize.size()-1];
 	}
+	
 	if (header) {  //handle both segments and byte range requests
            fatePkt.SetUnsignedNamedAttribute("Segments", maxSegment);
 	   fatePkt.SetUnsignedNamedAttribute("TotalSize", (maxSegment)*m_size);

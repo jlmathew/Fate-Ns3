@@ -100,9 +100,77 @@ UdpFateVideoServerHelper::DumpStats(Ptr<Node> node, std::ostream &os )const
 }
 
 
+//Start FileZipf
+UdpFateFileZipfServerHelper::UdpFateFileZipfServerHelper (uint16_t port)
+{
+  m_factory.SetTypeId (UdpFateFileZipfServer::GetTypeId ());
+  SetAttribute ("Port", UintegerValue (port));
+}
+
+void 
+UdpFateFileZipfServerHelper::SetAttribute (
+  std::string name, 
+  const AttributeValue &value)
+{
+  m_factory.Set (name, value);
+}
+
+ApplicationContainer
+UdpFateFileZipfServerHelper::Install (Ptr<Node> node) const
+{
+  return ApplicationContainer (InstallPriv (node));
+}
+
+ApplicationContainer
+UdpFateFileZipfServerHelper::Install (std::string nodeName) const
+{
+  Ptr<Node> node = Names::Find<Node> (nodeName);
+  return ApplicationContainer (InstallPriv (node));
+}
+
+ApplicationContainer
+UdpFateFileZipfServerHelper::Install (NodeContainer c) const
+{
+  ApplicationContainer apps;
+  for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
+    {
+      apps.Add (InstallPriv (*i));
+    }
+
+  return apps;
+}
+
+Ptr<Application>
+UdpFateFileZipfServerHelper::InstallPriv (Ptr<Node> node) const
+{
+  Ptr<Application> app = m_factory.Create<UdpFateFileZipfServer> ();
+  node->AddApplication (app);
+
+  return app;
+}
+
+void
+UdpFateFileZipfServerHelper::SetPartialMatch(Ptr<Application> app, const std::list< std::pair< std::string, std::string> > &match)
+{
+	assert(0);
+  app->GetObject<UdpFateFileZipfServer>()->SetPartialMatch(match);
+}
+
+void
+UdpFateFileZipfServerHelper::DumpStats(Ptr<Node> node, std::ostream &os )const 
+{
+       for (uint32_t j = 0; j < node->GetNApplications (); j++)
+       {
+          Ptr<UdpFateFileZipfServer> app = DynamicCast<UdpFateFileZipfServer> (node->GetApplication (j));
+          if (app) {
+            app->GetObject<UdpFateFileZipfServer>()->PrintStats(os);
+          }
+       }
+       
+}
 
 
-
+//end of FileZipf
 
 UdpFateServerHelper::UdpFateServerHelper (uint16_t port)
 {
@@ -170,7 +238,7 @@ UdpFateServerHelper::DumpStats(Ptr<Node> node, std::ostream &os )const
        }
        
 }
-
+///
 UdpFateFileClientHelper::UdpFateFileClientHelper (ipPort(*getAddrPort)(const std::string &name))
 {
   uninit=true;
@@ -270,6 +338,121 @@ UdpFateFileClientHelper::InstallPriv (Ptr<Node> node) const
   return app;
 }
 
+////
+UdpFateFileZipfClientHelper::UdpFateFileZipfClientHelper ()
+{
+  uninit=true;
+}
+UdpFateFileZipfClientHelper::UdpFateFileZipfClientHelper (Address address, uint16_t port)
+{
+  m_factory.SetTypeId (UdpFateFileZipfClient::GetTypeId ());
+  SetAttribute ("RemoteAddress", AddressValue (address));
+  SetAttribute ("RemotePort", UintegerValue (port));
+  uninit=false;
+}
+
+UdpFateFileZipfClientHelper::UdpFateFileZipfClientHelper (Address address)
+{
+  m_factory.SetTypeId (UdpFateFileZipfClient::GetTypeId ());
+  SetAttribute ("RemoteAddress", AddressValue (address));
+  uninit=false;
+}
+
+void 
+UdpFateFileZipfClientHelper::SetAttribute (
+  std::string name, 
+  const AttributeValue &value)
+{
+  m_factory.Set (name, value);
+}
+void
+UdpFateFileZipfClientHelper::DumpStats(Ptr<Node> node, std::ostream &os )const 
+{
+         for (uint32_t j = 0; j < node->GetNApplications (); j++)
+       {
+          Ptr<UdpFateFileZipfClient> app = DynamicCast<UdpFateFileZipfClient> (node->GetApplication (j));
+          if (app) {
+            app->GetObject<UdpFateFileZipfClient>()->PrintStats(os);
+          }
+       }
+}
+
+void
+UdpFateFileZipfClientHelper::SetPktPayload (Ptr<Node> node, unsigned int appNum, const PktType &payload )
+{
+     //if (appNum >= node->GetNApplications()) { assert(0);}
+     Ptr<UdpFateFileZipfClient> app = DynamicCast<UdpFateFileZipfClient> (node->GetApplication (appNum));
+     if (app) {
+         app->GetObject<UdpFateFileZipfClient>()->SetPktPayload (payload);
+     } else {
+       //assert(0);
+     }
+}
+
+void
+UdpFateFileZipfClientHelper::SetPktPayload (Ptr<Application> app, const std::string &xml)
+{
+  app->GetObject<UdpFateFileZipfClient>()->SetPktPayload (xml);
+}
+void
+UdpFateFileZipfClientHelper::SetPktPayload (Ptr<Application> app,const PktType &payload )
+{
+  app->GetObject<UdpFateFileZipfClient>()->SetPktPayload (payload);
+}
+void
+UdpFateFileZipfClientHelper::SetPktPayload (Ptr<Application> app,const IcnName<std::string> &name )
+{
+  app->GetObject<UdpFateFileZipfClient>()->SetPktPayload (name);
+}
+void
+UdpFateFileZipfClientHelper::SetTimestamp (Ptr<Application> app, bool timestamp)
+{
+  app->GetObject<UdpFateZipfClient>()->SetTimestamp(timestamp);
+}
+void
+UdpFateFileZipfClientHelper::SetPktPayload (Ptr<Application> app, uint8_t *fill, uint32_t dataLength)
+{
+  app->GetObject<UdpFateFileZipfClient>()->SetPktPayload (fill, dataLength);
+}
+
+ApplicationContainer
+UdpFateFileZipfClientHelper::Install (Ptr<Node> node) const
+{
+  return ApplicationContainer (InstallPriv (node));
+}
+
+ApplicationContainer
+UdpFateFileZipfClientHelper::Install (std::string nodeName) const
+{
+  Ptr<Node> node = Names::Find<Node> (nodeName);
+  return ApplicationContainer (InstallPriv (node));
+}
+
+ApplicationContainer
+UdpFateFileZipfClientHelper::Install (NodeContainer c) const
+{
+  ApplicationContainer apps;
+  for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
+    {
+      apps.Add (InstallPriv (*i));
+    }
+
+  return apps;
+}
+
+Ptr<Application>
+UdpFateFileZipfClientHelper::InstallPriv (Ptr<Node> node) const
+{
+  Ptr<Application> app = m_factory.Create<UdpFateFileZipfClient> ();
+  node->AddApplication (app);
+
+  return app;
+}
+
+UdpFateFileZipfClientHelper::UdpFateFileZipfClientHelper (ipPort(*getAddrPort)(const std::string &name))
+{
+  uninit=true;
+}
 
 UdpFateZipfClientHelper::UdpFateZipfClientHelper ()
 {

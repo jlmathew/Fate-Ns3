@@ -78,7 +78,9 @@ private:
   Ptr<Socket> m_socket6; //!< IPv6 Socket
   Address m_local; //!< local multicast address
   //std::list< std::pair< std::string, std::string> > m_partMatch;
+  std::string m_fileSize;
   std::string m_setNameMatch;
+  std::string m_segSizeFile;
 
   uint64_t m_statNumPktsTx; //
   uint64_t m_statNumIntPktRx; //
@@ -90,7 +92,6 @@ private:
   uint64_t m_statTotalIntRxSize;
   uint64_t m_statNumErrorPkts;
   std::vector<uint32_t> m_segSize;
-   std::string m_segSizeFile;
  
 };
 

@@ -100,7 +100,7 @@ private:
    * \brief Send a packet
    */
   void Send (void);
-
+  void SendHeader(void);
   /**
    * \brief Handle a packet reception.
    *

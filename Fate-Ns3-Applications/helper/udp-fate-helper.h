@@ -105,6 +105,81 @@ private:
   bool m_timestamp;
 };
 
+/**
+ * \ingroup udpecho
+ * \brief Create a server application which waits for input UDP packets
+ *        and sends them back to the original sender.
+ */
+class UdpFateFileZipfServerHelper
+{
+public:
+  /**
+   * Create UdpFateServerHelper which will make life easier for people trying
+   * to set up simulations with echos.
+   *
+   * \param port The port the server will wait on for incoming packets
+   */
+  UdpFateFileZipfServerHelper (uint16_t port);
+
+  /**
+   * Record an attribute to be set in each Application after it is is created.
+   *
+   * \param name the name of the attribute to set
+   * \param value the value of the attribute to set
+   */
+  void SetAttribute (std::string name, const AttributeValue &value);
+void SetTimestamp (Ptr<Application> app, bool timestamp);
+void DumpStats(Ptr<Node> node, std::ostream &os) const;
+
+void
+SetPartialMatch(Ptr<Application> app, const std::list< std::pair< std::string, std::string> > &match);
+
+  /**
+   * Create a UdpFateServerApplication on the specified Node.
+   *
+   * \param node The node on which to create the Application.  The node is
+   *             specified by a Ptr<Node>.
+   *
+   * \returns An ApplicationContainer holding the Application created,
+   */
+  ApplicationContainer Install (Ptr<Node> node) const;
+
+  /**
+   * Create a UdpFateServerApplication on specified node
+   *
+   * \param nodeName The node on which to create the application.  The node
+   *                 is specified by a node name previously registered with
+   *                 the Object Name Service.
+   *
+   * \returns An ApplicationContainer holding the Application created.
+   */
+  ApplicationContainer Install (std::string nodeName) const;
+
+  /**
+   * \param c The nodes on which to create the Applications.  The nodes
+   *          are specified by a NodeContainer.
+   *
+   * Create one udp echo server application on each of the Nodes in the
+   * NodeContainer.
+   *
+   * \returns The applications created, one Application per Node in the 
+   *          NodeContainer.
+   */
+  ApplicationContainer Install (NodeContainer c) const;
+
+private:
+  /**
+   * Install an ns3::UdpFateServer on the node configured with all the
+   * attributes set with SetAttribute.
+   *
+   * \param node The node on which an UdpFateServer will be installed.
+   * \returns Ptr to the application installed.
+   */
+  Ptr<Application> InstallPriv (Ptr<Node> node) const;
+
+  ObjectFactory m_factory; //!< Object factory.
+  bool m_timestamp;
+};
 
 
 /**
@@ -385,6 +460,96 @@ public:
 void
 SetPktPayload (Ptr<Node> node, unsigned int appNum, const PktType &payload );
 
+  void SetPktPayload (Ptr<Application> app, const std::string &xml);
+  void SetPktPayload (Ptr<Application> app, const IcnName<std::string> &name);
+  void SetPktPayload (Ptr<Application> app, const PktType &payload);
+   void SetPktPayload (Ptr<Application> app, uint8_t *fill, uint32_t dataLength);
+   void DumpStats(Ptr<Node> node, std::ostream &os) const;
+
+  /**
+   * Create a udp echo client application on the specified node.  The Node
+   * is provided as a Ptr<Node>.
+   *
+   * \param node The Ptr<Node> on which to create the UdpFateClientApplication.
+   *
+   * \returns An ApplicationContainer that holds a Ptr<Application> to the 
+   *          application created
+   */
+  ApplicationContainer Install (Ptr<Node> node) const;
+
+  /**
+   * Create a udp echo client application on the specified node.  The Node
+   * is provided as a string name of a Node that has been previously 
+   * associated using the Object Name Service.
+   *
+   * \param nodeName The name of the node on which to create the UdpFateClientApplication
+   *
+   * \returns An ApplicationContainer that holds a Ptr<Application> to the 
+   *          application created
+   */
+  ApplicationContainer Install (std::string nodeName) const;
+
+  /**
+   * \param c the nodes
+   *
+   * Create one udp echo client application on each of the input nodes
+   *
+   * \returns the applications created, one application per input node.
+   */
+  ApplicationContainer Install (NodeContainer c) const;
+
+private:
+  /**
+   * Install an ns3::UdpFateClient on the node configured with all the
+   * attributes set with SetAttribute.
+   *
+   * \param node The node on which an UdpFateClient will be installed.
+   * \returns Ptr to the application installed.
+   */
+  Ptr<Application> InstallPriv (Ptr<Node> node) const;
+  ObjectFactory m_factory; //!< Object factory.
+  bool m_timestamp;
+  bool uninit;
+};
+/**
+ * \ingroup udpecho
+ * \brief Create an application which sends a UDP packet and waits for an echo of this packet
+ */
+class UdpFateFileZipfClientHelper
+{
+public:
+  /**
+   * Create UdpFateClientHelper which will make life easier for people trying
+   * to set up simulations with echos. Use this variant with addresses that do
+   * not include a port value (e.g., Ipv4Address and Ipv6Address).
+   *
+   * \param ip The IP address of the remote udp echo server
+   * \param port The port number of the remote udp echo server
+   */
+  UdpFateFileZipfClientHelper (Address ip, uint16_t port);
+  UdpFateFileZipfClientHelper ();
+  UdpFateFileZipfClientHelper (ipPort(*getAddrPort)(const std::string &name));
+  /**
+   * Create UdpFateClientHelper which will make life easier for people trying
+   * to set up simulations with echos. Use this variant with addresses that do
+   * include a port value (e.g., InetSocketAddress and Inet6SocketAddress).
+   *
+   * \param addr The address of the remote udp echo server
+   */
+  UdpFateFileZipfClientHelper (Address addr);
+
+  /**
+   * Record an attribute to be set in each Application after it is is created.
+   *
+   * \param name the name of the attribute to set
+   * \param value the value of the attribute to set
+   */
+  void SetAttribute (std::string name, const AttributeValue &value);
+void SetTimestamp (Ptr<Application> app, bool timestamp);
+
+
+void
+SetPktPayload (Ptr<Node> node, unsigned int appNum, const PktType &payload );
   void SetPktPayload (Ptr<Application> app, const std::string &xml);
   void SetPktPayload (Ptr<Application> app, const IcnName<std::string> &name);
   void SetPktPayload (Ptr<Application> app, const PktType &payload);

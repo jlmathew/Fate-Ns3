@@ -105,7 +105,7 @@ void CreateDestAssociation(const NodeContainer &producers)
      {
        
        Ptr<UdpFateServer> app = DynamicCast<UdpFateServer>(node->GetApplication(j));
-
+       
        if (0 != app)  //fate server app 
        {
          notFound = false;
@@ -114,13 +114,24 @@ void CreateDestAssociation(const NodeContainer &producers)
          ipPort_t info= std::make_pair(addri, port);
          nodeNameToIPort.insert(std::make_pair(name,info));
        } else { //check video servers
-         notFound = false;
         Ptr<UdpFateVideoServer> app = DynamicCast<UdpFateVideoServer>(node->GetApplication(j));
+	if (0 != app) {
+         notFound = false;
          app->GetMatchNameAndPort(name, port);
          //std::cout << "node:" << i << "(" << j << ") ipv4 producer:" << name << "= " << addri << "," << port <<"\n";
          ipPort_t info= std::make_pair(addri, port);
          nodeNameToIPort.insert(std::make_pair(name,info));
+        } else {
+        Ptr<UdpFateFileZipfServer> app = DynamicCast<UdpFateFileZipfServer>(node->GetApplication(j));
+	if (0 != app) {
+         notFound = false;
+         app->GetMatchNameAndPort(name, port);
+         //std::cout << "node:" << i << "(" << j << ") ipv4 producer:" << name << "= " << addri << "," << port <<"\n";
+         ipPort_t info= std::make_pair(addri, port);
+         nodeNameToIPort.insert(std::make_pair(name,info));
+        } 
 
+	}
 
        }
      }
@@ -148,7 +159,9 @@ ipPort_t
 GetProdNodeIpv4(const std::string &bestMatchName)
 {
   std::map<std::string,std::pair<Ipv4Address, uint16_t>  >::const_iterator cit = nodeNameToIPort.find(bestMatchName);
-    //std::cout << "access there are " << size << " entries\n";
+  //debug
+  auto debug = nodeNameToIPort.begin();
+    std::cout << "access there are " << debug->first << ":" << debug->second.first << " entries\n";
      if (cit == nodeNameToIPort.end()) { //not found
      assert(0);
    } 
