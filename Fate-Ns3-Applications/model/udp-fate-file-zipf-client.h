@@ -100,7 +100,7 @@ private:
    * \brief Send a packet
    */
   void Send (void);
-  void SendHeader(void);
+  void SendBody();
   /**
    * \brief Handle a packet reception.
    *
@@ -113,7 +113,7 @@ private:
   uint32_t m_count; //!< Maximum number of packets the application will send
   Time m_interval; //!< Packet inter-send time
   uint32_t m_size; //!< Size of the sent packet
-  uint32_t m_segSize;
+  uint64_t m_segSize;
   uint32_t m_dataSize; //!< packet payload size (must be equal to m_size)
   uint8_t *m_data; //!< packet payload data
 
@@ -128,7 +128,7 @@ private:
 
   PktType m_payload; //!< Fate packet payload
 
-  uint32_t m_segCnt;
+  uint64_t m_segCnt;
   uint32_t m_fileCnt;
   uint32_t m_maxFiles;
   bool m_timestamp;

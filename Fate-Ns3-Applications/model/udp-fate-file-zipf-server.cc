@@ -87,6 +87,7 @@ UdpFateFileZipfServer::UdpFateFileZipfServer ()
   m_statTotalNotMatchTxSize=0;
   m_statNumErrorPkts=0;
   m_statTotalIntRxSize=0;
+  m_segSizeBytes=0;
 }
 
 UdpFateFileZipfServer::~UdpFateFileZipfServer()
@@ -114,8 +115,9 @@ UdpFateFileZipfServer::StartApplication (void)
   } else {
     std::stringstream ss(m_segSizeFile);
     uint32_t val=0;
+    ss >> m_segSizeBytes;
     while (ss >> val) {
-    m_segSize.push_back(val);
+      m_segSize.push_back(val);
     }
   }
 
@@ -242,7 +244,7 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
 	uint64_t exist = 0;
 	bool header = fatePkt.GetUnsignedNamedAttribute("Header", exist,false);
 	uint32_t maxSegment = 1 ;
-	if ( m_segSize.size() < fileNum) {
+	if ( m_segSize.size() > fileNum) {
            maxSegment = m_segSize[fileNum];
 	} else {
            maxSegment = m_segSize[m_segSize.size()-1];
@@ -250,8 +252,8 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
 	
 	if (header) {  //handle both segments and byte range requests
            fatePkt.SetUnsignedNamedAttribute("Segments", maxSegment);
-	   fatePkt.SetUnsignedNamedAttribute("TotalSize", (maxSegment)*m_size);
-	   fatePkt.SetUnsignedNamedAttribute("SegSize", m_size );
+	   fatePkt.SetUnsignedNamedAttribute("TotalSize", (maxSegment)*m_segSizeBytes);
+	   fatePkt.SetUnsignedNamedAttribute("SegSize", m_segSizeBytes );
 	} else {  //data segment
            uint64_t segment=0;
 	   uint64_t byteStart = 0;

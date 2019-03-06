@@ -92,6 +92,7 @@ private:
   uint64_t m_statTotalIntRxSize;
   uint64_t m_statNumErrorPkts;
   std::vector<uint32_t> m_segSize;
+  uint64_t m_segSizeBytes;
  
 };
 
