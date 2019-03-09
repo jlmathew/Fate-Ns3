@@ -369,11 +369,13 @@ UdpFateFileZipfClient::SendBody ()
   m_payload.SetUnsignedNamedAttribute("Segment", m_segCnt);
   m_payload.SetUnsignedNamedAttribute("ByteStart", (m_segCnt-1)*m_segSize);
   m_payload.SetUnsignedNamedAttribute("ByteEnd", m_segCnt*m_segSize);
-  m_payload.DeleteNamedAttribute ("Header", true);
+  m_payload.DeleteNamedAttribute ("Header", false);
+  m_payload.DeleteNamedAttribute ("Segments", false);
+  m_payload.DeleteNamedAttribute ("SegSize", false);
 
   m_payload.SetName(m_pktName);
   m_payload.SetPacketPurpose(PktType::INTERESTPKT);
- std::cout << "request body segment:" << m_segCnt << "\n"; 
+ std::cout << "Summary: Request body segment:" << m_segCnt << "\n"; 
    std::vector<uint8_t> fateData;
    m_payload.ClearTempData();
    m_payload.Serialize(fateData);
@@ -444,7 +446,7 @@ UdpFateFileZipfClient::Send (void)
 	  --m_segCnt;
 	  return;
   }
-  std::cout << "requesting new file\n";
+  std::cout << "Summary: Requesting new file\n";
   Ptr<Packet> p;
 
   //add segment
@@ -468,7 +470,7 @@ std::cout << matchName << " = " << "filenum=" << m_fileCnt+m_fileNumStart << "\n
   m_payload.SetUnsignedNamedAttribute("Header", 1);
   m_payload.SetName(m_pktName);
   m_payload.SetPacketPurpose(PktType::INTERESTPKT);
- std::cout << "tx Header:" << m_payload << "\n"; 
+ std::cout << "client tx Header:" << m_payload << "\n"; 
    std::vector<uint8_t> fateData;
    m_payload.ClearTempData();
    m_payload.Serialize(fateData);
@@ -545,6 +547,12 @@ UdpFateFileZipfClient::HandleRead (Ptr<Socket> socket)
       {
            fatePkt.GetUnsignedNamedAttribute("Segments", m_segCnt);
 	   fatePkt.GetUnsignedNamedAttribute("SegSize", m_segSize );
+	   std::cout << "SUMMARY: Received Header\n";
+      } else {
+	      uint64_t temp=0;
+	   fatePkt.GetUnsignedNamedAttribute("Segment", temp );
+	   std::cout << "SUMMARY: Received Body of segment " << temp << "\n";
+
       }
 
       Time timesent;
@@ -579,7 +587,7 @@ UdpFateFileZipfClient::HandleRead (Ptr<Socket> socket)
                        Inet6SocketAddress::ConvertFrom (from).GetPort ());
         }
         NS_LOG_INFO("RX PKT:" << fatePkt);
-        std::cout << "RX PKT:" << fatePkt << "\n";
+        std::cout << "client RX PKT:" << fatePkt << "\n";
     }
 }
 void
