@@ -180,6 +180,7 @@ UdpFateFileZipfClient::StartApplication (void)
 {
   NS_LOG_FUNCTION (this);
   TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
+  count = 0;
 #ifdef ICN_STAT_ROUTES
   if (!m_nStaticDest)
   {
@@ -351,9 +352,9 @@ UdpFateFileZipfClient::SendBody ()
 
   Ptr<Packet> p;
 
-
+   PktType payload = m_payload;
   //add identifying file id and segment id, in name component
-  IcnName<std::string> m_pktName = m_payload.GetName();
+  IcnName<std::string> m_pktName = payload.GetName();
   NS_LOG_INFO(" (" << m_fileCnt << "," << m_segCnt << ") - ");
   m_pktName.SetUniqAttribute("fileNum", m_fileCnt+m_fileNumStart);
  
@@ -363,22 +364,26 @@ UdpFateFileZipfClient::SendBody ()
   matchName.append(out.str());
 //std::cout << matchName << " = " << "filenum=" << m_fileCnt+m_fileNumStart << "\n"; 
   if(m_timestamp) {
-     m_payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
+     payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
   }
 
-  m_payload.SetUnsignedNamedAttribute("Segment", m_segCnt);
-  m_payload.SetUnsignedNamedAttribute("ByteStart", (m_segCnt-1)*m_segSize);
-  m_payload.SetUnsignedNamedAttribute("ByteEnd", m_segCnt*m_segSize);
-  m_payload.DeleteNamedAttribute ("Header", false);
-  m_payload.DeleteNamedAttribute ("Segments", false);
-  m_payload.DeleteNamedAttribute ("SegSize", false);
+  payload.SetUnsignedNamedAttribute("Segment", m_segCnt);
+  payload.SetUnsignedNamedAttribute("ByteStart", (m_segCnt-1)*m_segSize);
+  payload.SetUnsignedNamedAttribute("ByteEnd", m_segCnt*m_segSize-1);
+  payload.DeleteNamedAttribute ("Header", false);
+  payload.DeleteNamedAttribute ("Segments", false);
+  payload.DeleteNamedAttribute ("SegSize", false);
 
-  m_payload.SetName(m_pktName);
-  m_payload.SetPacketPurpose(PktType::INTERESTPKT);
- std::cout << "Summary: Request body segment:" << m_segCnt << "\n"; 
+
+
+  payload.SetUnsignedNamedAttribute("PktId", count++);
+
+  payload.SetName(m_pktName);
+  payload.SetPacketPurpose(PktType::INTERESTPKT);
+ std::cout << "Summary: Request body segment:" << m_segCnt << "\n" << payload << "\n"; 
    std::vector<uint8_t> fateData;
-   m_payload.ClearTempData();
-   m_payload.Serialize(fateData);
+   payload.ClearTempData();
+   payload.Serialize(fateData);
    uint8_t *data = new uint8_t[fateData.size()];
    for(unsigned i = 0; i < fateData.size(); i++) {
       data[i] = fateData[i];
@@ -424,7 +429,7 @@ UdpFateFileZipfClient::SendBody ()
                    Inet6SocketAddress::ConvertFrom (m_peerAddress).GetIpv6 () << " port " << Inet6SocketAddress::ConvertFrom (m_peerAddress).GetPort ());
     }
 #endif
-  NS_LOG_INFO("PKT TX:" << m_payload);
+  NS_LOG_INFO("PKT TX:" << payload);
   if ((0 == m_count) || (m_sent < m_count)) 
     {
       ScheduleTransmit (m_interval);
@@ -441,6 +446,7 @@ UdpFateFileZipfClient::Send (void)
   NS_ASSERT (m_sendEvent.IsExpired ());
 
   //still correct, but requests content from high to low
+ 
   if (m_segCnt) {
 	  SendBody();
 	  --m_segCnt;
@@ -449,13 +455,15 @@ UdpFateFileZipfClient::Send (void)
   std::cout << "Summary: Requesting new file\n";
   Ptr<Packet> p;
 
+  //make copy of 'base' packet
+  PktType payload = m_payload;
   //add segment
   m_zipf->SetAttribute ("N", IntegerValue (m_maxFiles));
   m_zipf->SetAttribute ("Alpha", DoubleValue (m_alpha));
   m_fileCnt = m_zipf->GetInteger();
 
   //add identifying file id and segment id, in name component
-  IcnName<std::string> m_pktName = m_payload.GetName();
+  IcnName<std::string> m_pktName = payload.GetName();
   NS_LOG_INFO(" (" << m_fileCnt << "," << m_segCnt << ") - ");
   m_pktName.SetUniqAttribute("fileNum", m_fileCnt+m_fileNumStart);
  
@@ -465,15 +473,19 @@ UdpFateFileZipfClient::Send (void)
   matchName.append(out.str());
 std::cout << matchName << " = " << "filenum=" << m_fileCnt+m_fileNumStart << "\n"; 
   if(m_timestamp) {
-     m_payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
+     payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
   }
-  m_payload.SetUnsignedNamedAttribute("Header", 1);
-  m_payload.SetName(m_pktName);
-  m_payload.SetPacketPurpose(PktType::INTERESTPKT);
- std::cout << "client tx Header:" << m_payload << "\n"; 
+  payload.SetUnsignedNamedAttribute("Header", 1);
+  
+  payload.SetUnsignedNamedAttribute("PktId", count++);
+  
+  
+  payload.SetName(m_pktName);
+  payload.SetPacketPurpose(PktType::INTERESTPKT);
+ std::cout << "client tx Header:" << payload << "\n"; 
    std::vector<uint8_t> fateData;
-   m_payload.ClearTempData();
-   m_payload.Serialize(fateData);
+   payload.ClearTempData();
+   payload.Serialize(fateData);
    uint8_t *data = new uint8_t[fateData.size()];
    for(unsigned i = 0; i < fateData.size(); i++) {
       data[i] = fateData[i];
@@ -519,7 +531,7 @@ std::cout << matchName << " = " << "filenum=" << m_fileCnt+m_fileNumStart << "\n
                    Inet6SocketAddress::ConvertFrom (m_peerAddress).GetIpv6 () << " port " << Inet6SocketAddress::ConvertFrom (m_peerAddress).GetPort ());
     }
 #endif
-  NS_LOG_INFO("PKT TX:" << m_payload);
+  NS_LOG_INFO("PKT TX:" << payload);
   if ((0 == m_count) || (m_sent < m_count)) 
     {
       ScheduleTransmit (m_interval);
@@ -605,4 +617,5 @@ UdpFateFileZipfClient::PrintStats(std::ostream &os) const
    os << "m_totalHops:" << m_totalHops << "\n";
 }
 
+  int UdpFateFileZipfClient::count=0;
 } // Namespace ns3

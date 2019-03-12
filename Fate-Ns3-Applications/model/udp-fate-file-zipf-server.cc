@@ -254,6 +254,10 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
         fatePkt.SetUnsignedNamedAttribute("Segments", maxSegment);
         fatePkt.SetUnsignedNamedAttribute("TotalSize", (maxSegment)*m_segSizeBytes);
         fatePkt.SetUnsignedNamedAttribute("SegSize", m_segSizeBytes );
+	if (0 == maxSegment && 0 != m_size) {
+	  std::string data(m_size, 'a');
+	  fatePkt.SetNamedAttribute("DATA", data, false);
+	}
       } else {  //data segment
         uint64_t segment=0;
         uint64_t byteStart = 0;
@@ -263,9 +267,9 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
         segExists = fatePkt.GetUnsignedNamedAttribute("Segment", segment);
         byteRngExists = fatePkt.GetUnsignedNamedAttribute("ByteStart", byteStart);
         byteRngExists |= fatePkt.GetUnsignedNamedAttribute("ByteEnd", byteEnd);
-        if (!segExists) {
+        if (!segExists && byteRngExists) {
           segment = ((byteEnd)/m_segSizeBytes);
-        }
+        } 
         if (segExists || byteRngExists) {
           if (segment > maxSegment ) {
             fatePkt.SetPacketPurpose(PktType::INTERESTRESPONSEPKT);
@@ -276,18 +280,24 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
             fatePkt.SetNamedAttribute("ErrorCode", "Incomplete: Byte Range out of range");
 
           } else { //all good
-            //char value='A'+segment%26;
-            /*if (byteRngExists) {
-              std::string data(byteEnd-byteStart+1, 'A');
-              fatePkt.SetNamedAttribute("DATA", data, false);
-            } else { //segment
-              std::string data(m_size, 'a');
-              fatePkt.SetNamedAttribute("DATA", data, false);
-            }*/
+            char value='A'+segment%26;
+	    //auto resize = m_segSizeBytes; //m_size;
+	    //auto resize = m_size;
+	    size_t resize = m_segSizeBytes;
+	    if (byteRngExists)
+		    resize = 1+byteEnd-byteStart;
+	//	    FIXME TODO by does below cause segv?
+//std::string data(byteEnd-byteStart+1, 'X');
+std::string data(resize, value);
+fatePkt.SetNamedAttribute("DATA", data, false);
           }
-        } else { //error, need segment
-          fatePkt.SetPacketPurpose(PktType::INTERESTRESPONSEPKT);
-          fatePkt.SetNamedAttribute("ErrorCode", "Incomplete: Segment not requested");
+        } else { //assume 1 pkt file, no Header or Segment/byteStart//End attributes
+	  std::string data(m_size, 'z');
+	  fatePkt.SetNamedAttribute("DATA", data, false);
+	  if (m_size) {
+            fatePkt.SetUnsignedNamedAttribute("Segments", 0);
+            fatePkt.SetUnsignedNamedAttribute("TotalSize", m_size);
+	  }
         }
       }
       m_statNumDataPktTx++;
@@ -308,7 +318,9 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
 
     //FIXME TODO should we only do this for a successful hit?
     //mark it as hitting the server/producer
-    fatePkt.SetUnsignedNamedAttribute("ServerHitNodeName", GetNode()->GetId(), false);
+    std::string tmpName="Node"+std::to_string(GetNode()->GetId());
+
+    fatePkt.SetNamedAttribute("ServerHitNodeName", tmpName, false);
 
     std::string retChain;
     bool chainRetResult = fatePkt.GetNamedAttribute("ReturnChain", retChain);

@@ -151,9 +151,8 @@ private:
   std::string m_minMatchType;
   std::string m_xmlpayload;
   std::string m_matchName;
-
+  static int count;
 };
-
 } // namespace ns3
 
 #endif /* UDP_ECHO_CLIENT_H */
