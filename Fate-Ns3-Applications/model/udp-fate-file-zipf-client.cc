@@ -370,12 +370,6 @@ UdpFateFileZipfClient::SendBody ()
   payload.SetUnsignedNamedAttribute("Segment", m_segCnt);
   payload.SetUnsignedNamedAttribute("ByteStart", (m_segCnt-1)*m_segSize);
   payload.SetUnsignedNamedAttribute("ByteEnd", m_segCnt*m_segSize-1);
-  payload.DeleteNamedAttribute ("Header", false);
-  payload.DeleteNamedAttribute ("Segments", false);
-  payload.DeleteNamedAttribute ("SegSize", false);
-
-
-
   payload.SetUnsignedNamedAttribute("PktId", count++);
 
   payload.SetName(m_pktName);
@@ -562,8 +556,12 @@ UdpFateFileZipfClient::HandleRead (Ptr<Socket> socket)
 	   std::cout << "SUMMARY: Received Header\n";
       } else {
 	      uint64_t temp=0;
-	   fatePkt.GetUnsignedNamedAttribute("Segment", temp );
-	   std::cout << "SUMMARY: Received Body of segment " << temp << "\n";
+	   bool found = fatePkt.GetUnsignedNamedAttribute("Segment", temp );
+	   if (found) {
+	   std::cout << "SUMMARY: Received Body of segment " << temp << "\n"; }
+	   else {
+		   std::cout << "SUMMARY: Rx ICN packet\n";
+	   }
 
       }
 
