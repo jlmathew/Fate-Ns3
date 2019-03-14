@@ -67,7 +67,6 @@ ForwardNs3Ipv4Manager3::Config(ConfigWrapper &config) {
 
 void
 ForwardNs3Ipv4Manager3::OnPktIngress(PktType &pkt) {
-
   ModuleManager::OnPktIngress (pkt);       //let utilities judge it
   //check if cache hit, if yes, dont send interest, send data
   double cacheHit = 0.0;

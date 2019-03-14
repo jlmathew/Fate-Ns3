@@ -227,7 +227,7 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
       matchName.SetFullName(m_setNameMatch);
       pktName = fatePkt.GetName();
       match = pktName.PartialAttributeMatch(matchName);
-      match |= pktName.GetUniqAttribute("FileNum", fileNum);
+      match |= pktName.GetUniqAttribute("fileNum", fileNum);
     }  //FIXME TODO above, set file num
 
     //if true, it is a data pkt
@@ -245,7 +245,8 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
       bool header = fatePkt.GetUnsignedNamedAttribute("Header", exist,false);
       uint32_t maxSegment = 1 ;
       if ( m_segSize.size() > fileNum) {
-        maxSegment = m_segSize[fileNum];
+	      if (fileNum != 0) {
+        maxSegment = m_segSize[fileNum-1]; }
       } else {
         maxSegment = m_segSize[m_segSize.size()-1];
       }
