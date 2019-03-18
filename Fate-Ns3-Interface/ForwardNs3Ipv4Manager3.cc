@@ -80,17 +80,21 @@ ForwardNs3Ipv4Manager3::OnPktIngress(PktType &pkt) {
   PktTxStatus status=Sent;
   //No change if data or 'missed' interest packet
   if ((cacheHit == 1.0) && exist && m_cacheStore) {
+    //interest packets get changed to data packets
+    if (pkt.GetPacketPurpose() & PktType::INTERESTPKT) {
+      pkt.SetPacketPurpose(PktType::DATAPKT);
+    }
     pkt.GetUnsignedNamedAttribute("L3Proto", ipProto, true);
     //copy all the header information from interest to data
     if (ipProto == 0x800) {
-       pkt.GetPrintedNamedAttribute("Ipv4Src", toAddr, true);
+      pkt.GetPrintedNamedAttribute("Ipv4Src", toAddr, true);
       pkt.GetPrintedNamedAttribute("Ipv4Dst", fromAddr, true);
       pkt.GetUnsignedNamedAttribute("L4Proto", L4Proto, true);
 
       //copy to new packet
       pkt.SetPrintedNamedAttribute("Ipv4Src", fromAddr, true);
       pkt.SetPrintedNamedAttribute("Ipv4Dst", toAddr, true);
-      }
+    }
     if ((L4Proto == 17)  || (L4Proto==6)) {
       pkt.GetUnsignedNamedAttribute("SrcPort", srcPort, true);
       pkt.GetUnsignedNamedAttribute("DstPort", dstPort, true);

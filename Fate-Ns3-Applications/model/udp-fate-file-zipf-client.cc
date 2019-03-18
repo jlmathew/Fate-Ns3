@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2017 James Mathewson 
+ * Copyright (c) 2017 James Mathewson
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Author: James Mathewson <jlmathew@soe.ucsc.edu> 
+ * Author: James Mathewson <jlmathew@soe.ucsc.edu>
  */
 #include "ns3/log.h"
 #include "ns3/ipv4-address.h"
@@ -53,65 +53,70 @@ TypeId
 UdpFateFileZipfClient::GetTypeId (void)
 {
   static TypeId tid = TypeId ("ns3::UdpFateFileZipfClient")
-    .SetParent<Application> ()
-    .SetGroupName("Applications")
-    .AddConstructor<UdpFateFileZipfClient> ()
-    .AddAttribute ("MaxPackets", 
-                   "The maximum number of packets the application will send",
-                   UintegerValue (100),
-                   MakeUintegerAccessor (&UdpFateFileZipfClient::m_count),
-                   MakeUintegerChecker<uint32_t> ())
-    .AddAttribute ("Interval", 
-                   "The time to wait between packets",
-                   TimeValue (Seconds (1.0)),
-                   MakeTimeAccessor (&UdpFateFileZipfClient::m_interval),
-                   MakeTimeChecker ())
-    .AddAttribute ("RemoteAddress", 
-                   "The destination Address of the outbound packets",
-                   AddressValue (),
-                   MakeAddressAccessor (&UdpFateFileZipfClient::m_peerAddress),
-                   MakeAddressChecker ())
-    .AddAttribute ("RemotePort", 
-                   "The destination port of the outbound packets",
-                   UintegerValue (0),
-                   MakeUintegerAccessor (&UdpFateFileZipfClient::m_peerPort),
-                   MakeUintegerChecker<uint16_t> ())
-    .AddAttribute ("BaseFileNumStart", "Start file request at this number",
-                   UintegerValue (0),
-                   MakeUintegerAccessor (&UdpFateFileZipfClient::m_fileNumStart),
-                   MakeUintegerChecker<uint32_t> ())
-    .AddAttribute ("NumFiles", "Number of unique files sent",
-                   UintegerValue (10),
-                   MakeUintegerAccessor (&UdpFateFileZipfClient::m_maxFiles),
-                   MakeUintegerChecker<uint32_t> ())
-     .AddAttribute ("AddTimeStamp", "Add a timestamp to each packet",
-                   BooleanValue (false),
-                   MakeBooleanAccessor (&UdpFateFileZipfClient::m_timestamp),
-                   MakeBooleanChecker())
-     .AddAttribute ("ZipfAlpha", "Set the alpha value for zipf",
-                   DoubleValue (1.0),
-                   MakeDoubleAccessor (&UdpFateFileZipfClient::m_alpha),
-                   MakeDoubleChecker<double>())
-     .AddTraceSource ("Tx", "A new packet is created and is sent",
-                     MakeTraceSourceAccessor (&UdpFateFileZipfClient::m_txTrace),
-                     "ns3::Packet::TracedCallback")
-     .AddAttribute ("NStaticDestination", "Use a producer created destination table to route packets",
-                    BooleanValue (false),
-                    MakeBooleanAccessor (&UdpFateFileZipfClient::m_nStaticDest),
-                    MakeBooleanChecker())
-     .AddAttribute ("matchString", "Match string used to match to server",
-                   StringValue("/test1/fileNum="),
-                   MakeStringAccessor(&UdpFateFileZipfClient::m_matchName), 
-                   MakeStringChecker())
-     .AddAttribute ("matchByType", "Match name by 'location | filenum | segnum'",
-                   StringValue("filenum"),
-                   MakeStringAccessor(&UdpFateFileZipfClient::m_minMatchType), 
-                   MakeStringChecker())
-     .AddAttribute ("PktPayload", "Ascii XML representation of a packet, for ipv4 payload",
-                   StringValue(""),
-                   MakeStringAccessor(&UdpFateFileZipfClient::m_xmlpayload), 
-                   MakeStringChecker())
-  ;
+                      .SetParent<Application> ()
+                      .SetGroupName("Applications")
+                      .AddConstructor<UdpFateFileZipfClient> ()
+                      .AddAttribute ("MaxPackets",
+                                     "The maximum number of packets the application will send",
+                                     UintegerValue (100),
+                                     MakeUintegerAccessor (&UdpFateFileZipfClient::m_count),
+                                     MakeUintegerChecker<uint32_t> ())
+                      .AddAttribute ("Interval",
+                                     "The time to wait between packets",
+                                     TimeValue (Seconds (1.0)),
+                                     MakeTimeAccessor (&UdpFateFileZipfClient::m_interval),
+                                     MakeTimeChecker ())
+                      .AddAttribute ("RemoteAddress",
+                                     "The destination Address of the outbound packets",
+                                     AddressValue (),
+                                     MakeAddressAccessor (&UdpFateFileZipfClient::m_peerAddress),
+                                     MakeAddressChecker ())
+                      .AddAttribute ("RemotePort",
+                                     "The destination port of the outbound packets",
+                                     UintegerValue (0),
+                                     MakeUintegerAccessor (&UdpFateFileZipfClient::m_peerPort),
+                                     MakeUintegerChecker<uint16_t> ())
+                      .AddAttribute ("BaseFileNumStart", "Start file request at this number",
+                                     UintegerValue (0),
+                                     MakeUintegerAccessor (&UdpFateFileZipfClient::m_fileNumStart),
+                                     MakeUintegerChecker<uint32_t> ())
+                      .AddAttribute ("NumFiles", "Number of unique files sent",
+                                     UintegerValue (10),
+                                     MakeUintegerAccessor (&UdpFateFileZipfClient::m_maxFiles),
+                                     MakeUintegerChecker<uint32_t> ())
+                      .AddAttribute ("AddTimeStamp", "Add a timestamp to each packet",
+                                     BooleanValue (false),
+                                     MakeBooleanAccessor (&UdpFateFileZipfClient::m_timestamp),
+                                     MakeBooleanChecker())
+                      .AddAttribute ("ZipfAlpha", "Set the alpha value for zipf",
+                                     DoubleValue (1.0),
+                                     MakeDoubleAccessor (&UdpFateFileZipfClient::m_alpha),
+                                     MakeDoubleChecker<double>())
+                      .AddTraceSource ("Tx", "A new packet is created and is sent",
+                                       MakeTraceSourceAccessor (&UdpFateFileZipfClient::m_txTrace),
+                                       "ns3::Packet::TracedCallback")
+                      .AddAttribute ("NStaticDestination", "Use a producer created destination table to route packets",
+                                     BooleanValue (false),
+                                     MakeBooleanAccessor (&UdpFateFileZipfClient::m_nStaticDest),
+                                     MakeBooleanChecker())
+                      .AddAttribute ("matchString", "Match string used to match to server",
+                                     StringValue("/test1/fileNum="),
+                                     MakeStringAccessor(&UdpFateFileZipfClient::m_matchName),
+                                     MakeStringChecker())
+                      .AddAttribute ("matchByType", "Match name by 'location | filenum | segnum'",
+                                     StringValue("filenum"),
+                                     MakeStringAccessor(&UdpFateFileZipfClient::m_minMatchType),
+                                     MakeStringChecker())
+                      .AddAttribute ("PktPayload", "Ascii XML representation of a packet, for ipv4 payload",
+                                     StringValue(""),
+                                     MakeStringAccessor(&UdpFateFileZipfClient::m_xmlpayload),
+                                     MakeStringChecker())
+                      .AddAttribute ("uniqueDataPktNames", "Data packets have unique names",
+                                     BooleanValue (false),
+                                     MakeBooleanAccessor (&UdpFateFileZipfClient::m_uniqDataNames),
+                                     MakeBooleanChecker())
+
+                      ;
   return tid;
 }
 
@@ -149,7 +154,7 @@ UdpFateFileZipfClient::~UdpFateFileZipfClient()
   m_dataSize = 0;
 }
 
-void 
+void
 UdpFateFileZipfClient::SetRemote (Address ip, uint16_t port)
 {
   NS_LOG_FUNCTION (this << ip << port);
@@ -157,13 +162,13 @@ UdpFateFileZipfClient::SetRemote (Address ip, uint16_t port)
   m_peerPort = port;
 }
 
-void 
+void
 UdpFateFileZipfClient::SetRemote (Address addr)
 {
   NS_LOG_FUNCTION (this << addr);
   m_peerAddress = addr;
 }
-void 
+void
 UdpFateFileZipfClient::SetTimestamp(bool timestamp) {
   m_timestamp = timestamp;
 }
@@ -175,7 +180,7 @@ UdpFateFileZipfClient::DoDispose (void)
   Application::DoDispose ();
 }
 
-void 
+void
 UdpFateFileZipfClient::StartApplication (void)
 {
   NS_LOG_FUNCTION (this);
@@ -188,106 +193,108 @@ UdpFateFileZipfClient::StartApplication (void)
     assert(0);
   }
   if (m_vectSocket.size() == 0) {
-       std::string matchName;
-       if (m_minMatchType=="filenum") {
-         for(unsigned int i=0; i<m_maxFiles; i++) {
-            matchName =m_matchName;
-            std::stringstream out;
-            out << i+1+m_fileNumStart;
-            matchName.append(out.str());
-            Ptr<Socket> sock = Socket::CreateSocket (GetNode (), tid);
-            sock->Bind();
+    std::string matchName;
+    if (m_minMatchType=="filenum") {
+      for(unsigned int i=0; i<m_maxFiles; i++) {
+        matchName =m_matchName;
+        std::stringstream out;
+        out << i+1+m_fileNumStart;
+        matchName.append(out.str());
+        Ptr<Socket> sock = Socket::CreateSocket (GetNode (), tid);
+        sock->Bind();
 //FIXME TODO JLM
 //need to add configurable options to match only by path, or by which options
-            ipPort_t info = GetProdNodeIpv4(matchName);
-            Ipv4Address ipv4(info.first);
-            uint16_t port= info.second;
+        ipPort_t info = GetProdNodeIpv4(matchName);
+        Ipv4Address ipv4(info.first);
+        uint16_t port= info.second;
 //std::cout << matchName << " goes to " << info.first << ":" << port << "\n";
-            sock->Connect(InetSocketAddress (ipv4, port));
-            sock->SetRecvCallback (MakeCallback (&UdpFateFileZipfClient::HandleRead, this));
-            sock->SetAllowBroadcast (true);
-            m_vectSocket.push_back(sock);
-         }
-       } else if (m_minMatchType=="location") {
-         matchName=m_matchName;
-            Ptr<Socket> sock = Socket::CreateSocket (GetNode (), tid);
-            sock->Bind();
-            ipPort_t info = GetProdNodeIpv4(matchName);
-            Ipv4Address ipv4(info.first);
-            uint16_t port= info.second;
-            sock->Connect(InetSocketAddress (ipv4, port));
-             sock->SetRecvCallback (MakeCallback (&UdpFateFileZipfClient::HandleRead, this));
-            sock->SetAllowBroadcast (true);
-            m_vectSocket.push_back(sock);
+        sock->Connect(InetSocketAddress (ipv4, port));
+        sock->SetRecvCallback (MakeCallback (&UdpFateFileZipfClient::HandleRead, this));
+        sock->SetAllowBroadcast (true);
+        m_vectSocket.push_back(sock);
+      }
+    } else if (m_minMatchType=="location") {
+      matchName=m_matchName;
+      Ptr<Socket> sock = Socket::CreateSocket (GetNode (), tid);
+      sock->Bind();
+      ipPort_t info = GetProdNodeIpv4(matchName);
+      Ipv4Address ipv4(info.first);
+      uint16_t port= info.second;
+      sock->Connect(InetSocketAddress (ipv4, port));
+      sock->SetRecvCallback (MakeCallback (&UdpFateFileZipfClient::HandleRead, this));
+      sock->SetAllowBroadcast (true);
+      m_vectSocket.push_back(sock);
 
-       } else { assert(0);}
-  }
-#else 
-  if (m_socket == 0)
-    {
-      m_socket = Socket::CreateSocket (GetNode (), tid);
-      if (Ipv4Address::IsMatchingType(m_peerAddress) == true)
-        {
-          m_socket->Bind();
-          m_socket->Connect (InetSocketAddress (Ipv4Address::ConvertFrom(m_peerAddress), m_peerPort));
-        }
-      else if (Ipv6Address::IsMatchingType(m_peerAddress) == true)
-        {
-          m_socket->Bind6();
-          m_socket->Connect (Inet6SocketAddress (Ipv6Address::ConvertFrom(m_peerAddress), m_peerPort));
-        }
-      else if (InetSocketAddress::IsMatchingType (m_peerAddress) == true)
-        {
-          m_socket->Bind ();
-          m_socket->Connect (m_peerAddress);
-        }
-      else if (Inet6SocketAddress::IsMatchingType (m_peerAddress) == true)
-        {
-          m_socket->Bind6 ();
-          m_socket->Connect (m_peerAddress);
-        }
-      else
-        {
-          NS_ASSERT_MSG (false, "Incompatible address type: " << m_peerAddress);
-        }
+    } else {
+      assert(0);
     }
-
-    m_socket->SetRecvCallback (MakeCallback (&UdpFateFileZipfClient::HandleRead, this));
-    m_socket->SetAllowBroadcast (true);
   }
+#else
+  if (m_socket == 0)
+  {
+    m_socket = Socket::CreateSocket (GetNode (), tid);
+    if (Ipv4Address::IsMatchingType(m_peerAddress) == true)
+    {
+      m_socket->Bind();
+      m_socket->Connect (InetSocketAddress (Ipv4Address::ConvertFrom(m_peerAddress), m_peerPort));
+    }
+    else if (Ipv6Address::IsMatchingType(m_peerAddress) == true)
+    {
+      m_socket->Bind6();
+      m_socket->Connect (Inet6SocketAddress (Ipv6Address::ConvertFrom(m_peerAddress), m_peerPort));
+    }
+    else if (InetSocketAddress::IsMatchingType (m_peerAddress) == true)
+    {
+      m_socket->Bind ();
+      m_socket->Connect (m_peerAddress);
+    }
+    else if (Inet6SocketAddress::IsMatchingType (m_peerAddress) == true)
+    {
+      m_socket->Bind6 ();
+      m_socket->Connect (m_peerAddress);
+    }
+    else
+    {
+      NS_ASSERT_MSG (false, "Incompatible address type: " << m_peerAddress);
+    }
+  }
+
+  m_socket->SetRecvCallback (MakeCallback (&UdpFateFileZipfClient::HandleRead, this));
+  m_socket->SetAllowBroadcast (true);
+}
 #endif
   //Make it random between intervals FIXME TODO
   if (m_xmlpayload.size()) {
-    std::stringstream(m_xmlpayload) >> m_payload; 
+    std::stringstream(m_xmlpayload) >> m_payload;
   }
   m_payload.GetUnsignedNamedAttribute("TtlHop", m_startHops);
   ScheduleTransmit (Seconds (0.));
 }
 
-void 
+void
 UdpFateFileZipfClient::StopApplication ()
 {
   NS_LOG_FUNCTION (this);
-
-  if (m_socket != 0) 
-    {
-      m_socket->Close ();
-      m_socket->SetRecvCallback (MakeNullCallback<void, Ptr<Socket> > ());
-      m_socket = 0;
-    }
+  PrintStats(std::cout);
+  if (m_socket != 0)
+  {
+    m_socket->Close ();
+    m_socket->SetRecvCallback (MakeNullCallback<void, Ptr<Socket> > ());
+    m_socket = 0;
+  }
 
   Simulator::Cancel (m_sendEvent);
 }
 
 
-uint32_t 
+uint32_t
 UdpFateFileZipfClient::GetDataSize (void) const
 {
   NS_LOG_FUNCTION (this);
   return m_size;
 }
 
-void 
+void
 UdpFateFileZipfClient::SetPktPayload (const std::string &xml)
 {
   NS_LOG_FUNCTION (this << xml);
@@ -295,55 +302,55 @@ UdpFateFileZipfClient::SetPktPayload (const std::string &xml)
   std::stringstream ss;
   ss << xml;
   ss >> m_payload;
-   std::vector<uint8_t> fateData;
-   m_payload.Serialize(fateData);
-   m_size = fateData.size();
-   m_payload.GetUnsignedNamedAttribute("TtlHop", m_startHops);
- 
+  std::vector<uint8_t> fateData;
+  m_payload.Serialize(fateData);
+  m_size = fateData.size();
+  m_payload.GetUnsignedNamedAttribute("TtlHop", m_startHops);
+
 }
 
-void 
+void
 UdpFateFileZipfClient::SetPktPayload (const PktType &payload)
 {
   m_payload = payload;
-     std::vector<uint8_t> fateData;
-   m_payload.Serialize(fateData);
-   m_size = fateData.size();
-   m_payload.GetUnsignedNamedAttribute("TtlHop", m_startHops);
+  std::vector<uint8_t> fateData;
+  m_payload.Serialize(fateData);
+  m_size = fateData.size();
+  m_payload.GetUnsignedNamedAttribute("TtlHop", m_startHops);
 
 
 }
 
-void 
+void
 UdpFateFileZipfClient::SetPktPayload (const IcnName<std::string> &name)
 {
   m_payload.ClearData();
   m_payload.SetName(name);
 }
 
-void 
+void
 UdpFateFileZipfClient::SetPktPayload (uint8_t *fill, uint32_t dataSize)
 {
   NS_LOG_FUNCTION (this << fill << dataSize);
- 
+
   std::vector<uint8_t> data;
   for(unsigned int i=0; i<dataSize; i++) {
-     data[i] = fill[i];
+    data[i] = fill[i];
   }
   m_payload.Serialize(data);
   m_size = dataSize;
-   m_payload.GetUnsignedNamedAttribute("TtlHop", m_startHops);
+  m_payload.GetUnsignedNamedAttribute("TtlHop", m_startHops);
 
 }
 
-void 
+void
 UdpFateFileZipfClient::ScheduleTransmit (Time dt)
 {
   NS_LOG_FUNCTION (this << dt);
   m_sendEvent = Simulator::Schedule (dt, &UdpFateFileZipfClient::Send, this);
 }
 
-void 
+void
 UdpFateFileZipfClient::SendBody ()
 {
   NS_LOG_FUNCTION (this);
@@ -352,38 +359,41 @@ UdpFateFileZipfClient::SendBody ()
 
   Ptr<Packet> p;
 
-   PktType payload = m_payload;
+  PktType payload = m_payload;
   //add identifying file id and segment id, in name component
   IcnName<std::string> m_pktName = payload.GetName();
   NS_LOG_INFO(" (" << m_fileCnt << "," << m_segCnt << ") - ");
   m_pktName.SetUniqAttribute("fileNum", m_fileCnt+m_fileNumStart);
- 
+  if (m_uniqDataNames) {
+    m_pktName.SetUniqAttribute("segment", m_segCnt);
+  } else {
+    payload.SetUnsignedNamedAttribute("Segment", m_segCnt);
+    payload.SetUnsignedNamedAttribute("ByteStart", (m_segCnt-1)*m_segSize);
+    payload.SetUnsignedNamedAttribute("ByteEnd", m_segCnt*m_segSize-1);
+  }
   std::string matchName=m_matchName; //"/test1/fileNum=";
   std::stringstream out;
   out << (m_fileCnt+m_fileNumStart);
   matchName.append(out.str());
-//std::cout << matchName << " = " << "filenum=" << m_fileCnt+m_fileNumStart << "\n"; 
+//std::cout << matchName << " = " << "filenum=" << m_fileCnt+m_fileNumStart << "\n";
   if(m_timestamp) {
-     payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
+    payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
   }
 
-  payload.SetUnsignedNamedAttribute("Segment", m_segCnt);
-  payload.SetUnsignedNamedAttribute("ByteStart", (m_segCnt-1)*m_segSize);
-  payload.SetUnsignedNamedAttribute("ByteEnd", m_segCnt*m_segSize-1);
   payload.SetUnsignedNamedAttribute("PktId", count++);
 
   payload.SetName(m_pktName);
   payload.SetPacketPurpose(PktType::INTERESTPKT);
- std::cout << "Summary: Request body segment:" << m_segCnt << "\n" << payload << "\n"; 
-   std::vector<uint8_t> fateData;
-   payload.ClearTempData();
-   payload.Serialize(fateData);
-   uint8_t *data = new uint8_t[fateData.size()];
-   for(unsigned i = 0; i < fateData.size(); i++) {
-      data[i] = fateData[i];
-   }
-   p = Create<Packet>(data, fateData.size());
-   delete[] data; 
+  std::cout << "Summary: Request body segment:" << m_segCnt << "\n" << payload << "\n";
+  std::vector<uint8_t> fateData;
+  payload.ClearTempData();
+  payload.Serialize(fateData);
+  uint8_t *data = new uint8_t[fateData.size()];
+  for(unsigned i = 0; i < fateData.size(); i++) {
+    data[i] = fateData[i];
+  }
+  p = Create<Packet>(data, fateData.size());
+  delete[] data;
 
   m_txTrace (p);
   ++m_sent;
@@ -403,36 +413,36 @@ UdpFateFileZipfClient::SendBody ()
   m_socket->Send (p);
 
   if (Ipv4Address::IsMatchingType (m_peerAddress))
-    {
-      NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
-                   Ipv4Address::ConvertFrom (m_peerAddress) << " port " << m_peerPort );
-    }
+  {
+    NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
+                 Ipv4Address::ConvertFrom (m_peerAddress) << " port " << m_peerPort );
+  }
   else if (Ipv6Address::IsMatchingType (m_peerAddress))
-    {
-      NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
-                   Ipv6Address::ConvertFrom (m_peerAddress) << " port " << m_peerPort);
-    }
+  {
+    NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
+                 Ipv6Address::ConvertFrom (m_peerAddress) << " port " << m_peerPort);
+  }
   else if (InetSocketAddress::IsMatchingType (m_peerAddress))
-    {
-      NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
-                   InetSocketAddress::ConvertFrom (m_peerAddress).GetIpv4 () << " port " << InetSocketAddress::ConvertFrom (m_peerAddress).GetPort ());
-    }
+  {
+    NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
+                 InetSocketAddress::ConvertFrom (m_peerAddress).GetIpv4 () << " port " << InetSocketAddress::ConvertFrom (m_peerAddress).GetPort ());
+  }
   else if (Inet6SocketAddress::IsMatchingType (m_peerAddress))
-    {
-      NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
-                   Inet6SocketAddress::ConvertFrom (m_peerAddress).GetIpv6 () << " port " << Inet6SocketAddress::ConvertFrom (m_peerAddress).GetPort ());
-    }
+  {
+    NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
+                 Inet6SocketAddress::ConvertFrom (m_peerAddress).GetIpv6 () << " port " << Inet6SocketAddress::ConvertFrom (m_peerAddress).GetPort ());
+  }
 #endif
   NS_LOG_INFO("PKT TX:" << payload);
-  if ((0 == m_count) || (m_sent < m_count)) 
-    {
-      ScheduleTransmit (m_interval);
-    }
+  if ((0 == m_count) || (m_sent < m_count))
+  {
+    ScheduleTransmit (m_interval);
+  }
 }
 
 
 
-void 
+void
 UdpFateFileZipfClient::Send (void)
 {
   NS_LOG_FUNCTION (this);
@@ -440,11 +450,11 @@ UdpFateFileZipfClient::Send (void)
   NS_ASSERT (m_sendEvent.IsExpired ());
 
   //still correct, but requests content from high to low
- 
+
   if (m_segCnt) {
-	  SendBody();
-	  --m_segCnt;
-	  return;
+    SendBody();
+    --m_segCnt;
+    return;
   }
   std::cout << "Summary: Requesting new file\n";
   Ptr<Packet> p;
@@ -460,32 +470,32 @@ UdpFateFileZipfClient::Send (void)
   IcnName<std::string> m_pktName = payload.GetName();
   NS_LOG_INFO(" (" << m_fileCnt << "," << m_segCnt << ") - ");
   m_pktName.SetUniqAttribute("fileNum", m_fileCnt+m_fileNumStart);
- 
+
   std::string matchName=m_matchName; //"/test1/fileNum=";
   std::stringstream out;
   out << (m_fileCnt+m_fileNumStart);
   matchName.append(out.str());
-std::cout << matchName << " = " << "filenum=" << m_fileCnt+m_fileNumStart << "\n"; 
+  std::cout << matchName << " = " << "filenum=" << m_fileCnt+m_fileNumStart << "\n";
   if(m_timestamp) {
-     payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
+    payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
   }
   payload.SetUnsignedNamedAttribute("Header", 1);
-  
+
   payload.SetUnsignedNamedAttribute("PktId", count++);
-  
-  
+
+
   payload.SetName(m_pktName);
   payload.SetPacketPurpose(PktType::INTERESTPKT);
- std::cout << "client tx Header:" << payload << "\n"; 
-   std::vector<uint8_t> fateData;
-   payload.ClearTempData();
-   payload.Serialize(fateData);
-   uint8_t *data = new uint8_t[fateData.size()];
-   for(unsigned i = 0; i < fateData.size(); i++) {
-      data[i] = fateData[i];
-   }
-   p = Create<Packet>(data, fateData.size());
-   delete[] data; 
+  std::cout << "client tx Header:" << payload << "\n";
+  std::vector<uint8_t> fateData;
+  payload.ClearTempData();
+  payload.Serialize(fateData);
+  uint8_t *data = new uint8_t[fateData.size()];
+  for(unsigned i = 0; i < fateData.size(); i++) {
+    data[i] = fateData[i];
+  }
+  p = Create<Packet>(data, fateData.size());
+  delete[] data;
 
   m_txTrace (p);
   ++m_sent;
@@ -505,31 +515,31 @@ std::cout << matchName << " = " << "filenum=" << m_fileCnt+m_fileNumStart << "\n
   m_socket->Send (p);
 
   if (Ipv4Address::IsMatchingType (m_peerAddress))
-    {
-      NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
-                   Ipv4Address::ConvertFrom (m_peerAddress) << " port " << m_peerPort );
-    }
+  {
+    NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
+                 Ipv4Address::ConvertFrom (m_peerAddress) << " port " << m_peerPort );
+  }
   else if (Ipv6Address::IsMatchingType (m_peerAddress))
-    {
-      NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
-                   Ipv6Address::ConvertFrom (m_peerAddress) << " port " << m_peerPort);
-    }
+  {
+    NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
+                 Ipv6Address::ConvertFrom (m_peerAddress) << " port " << m_peerPort);
+  }
   else if (InetSocketAddress::IsMatchingType (m_peerAddress))
-    {
-      NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
-                   InetSocketAddress::ConvertFrom (m_peerAddress).GetIpv4 () << " port " << InetSocketAddress::ConvertFrom (m_peerAddress).GetPort ());
-    }
+  {
+    NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
+                 InetSocketAddress::ConvertFrom (m_peerAddress).GetIpv4 () << " port " << InetSocketAddress::ConvertFrom (m_peerAddress).GetPort ());
+  }
   else if (Inet6SocketAddress::IsMatchingType (m_peerAddress))
-    {
-      NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
-                   Inet6SocketAddress::ConvertFrom (m_peerAddress).GetIpv6 () << " port " << Inet6SocketAddress::ConvertFrom (m_peerAddress).GetPort ());
-    }
+  {
+    NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to " <<
+                 Inet6SocketAddress::ConvertFrom (m_peerAddress).GetIpv6 () << " port " << Inet6SocketAddress::ConvertFrom (m_peerAddress).GetPort ());
+  }
 #endif
   NS_LOG_INFO("PKT TX:" << payload);
-  if ((0 == m_count) || (m_sent < m_count)) 
-    {
-      ScheduleTransmit (m_interval);
-    }
+  if ((0 == m_count) || (m_sent < m_count))
+  {
+    ScheduleTransmit (m_interval);
+  }
 }
 
 
@@ -541,79 +551,80 @@ UdpFateFileZipfClient::HandleRead (Ptr<Socket> socket)
   Ptr<Packet> packet;
   Address from;
   while ((packet = socket->RecvFrom (from)))
+  {
+    PktType fatePkt;
+    FateIpv4Interface::Ipv4ToFatePkt(packet, 0, fatePkt);
+    //bool valid = FateIpv4Interface::Ipv4ToFatePkt(packet, 0, fatePkt);
+    //NS_ASSERT(valid);
+    //is it a header?
+    uint64_t tmp;
+    bool isHdr = fatePkt.GetUnsignedNamedAttribute("Header", tmp);
+    if (isHdr)
     {
-      PktType fatePkt;
-      FateIpv4Interface::Ipv4ToFatePkt(packet, 0, fatePkt);
-      //bool valid = FateIpv4Interface::Ipv4ToFatePkt(packet, 0, fatePkt);
-      //NS_ASSERT(valid);
-      //is it a header?
-      uint64_t tmp;
-      bool isHdr = fatePkt.GetUnsignedNamedAttribute("Header", tmp);
-      if (isHdr)
-      {
-           fatePkt.GetUnsignedNamedAttribute("Segments", m_segCnt);
-	   fatePkt.GetUnsignedNamedAttribute("SegSize", m_segSize );
-	   std::cout << "SUMMARY: Received Header\n";
-      } else {
-	      uint64_t temp=0;
-	   bool found = fatePkt.GetUnsignedNamedAttribute("Segment", temp );
-	   if (found) {
-	   std::cout << "SUMMARY: Received Body of segment " << temp << "\n"; }
-	   else {
-		   std::cout << "SUMMARY: Rx ICN packet\n";
-	   }
-
+      fatePkt.GetUnsignedNamedAttribute("Segments", m_segCnt);
+      fatePkt.GetUnsignedNamedAttribute("SegSize", m_segSize );
+      std::cout << "SUMMARY: Received Header\n";
+    } else {
+      uint64_t temp=0;
+      bool found = fatePkt.GetUnsignedNamedAttribute("Segment", temp );
+      if (found) {
+        std::cout << "SUMMARY: Received Body of segment " << temp << "\n";
+      }
+      else {
+        std::cout << "SUMMARY: Rx ICN packet\n";
       }
 
-      Time timesent;
-      uint64_t ttlrx=0;
-      fatePkt.GetUnsignedNamedAttribute("TtlHop", ttlrx);
-       m_totalHops += (m_startHops-ttlrx);
-
-      if (m_timestamp) {
-              fatePkt.GetObjectCpyNamedAttribute("Timestamp", timesent);
-      } 
-      if (fatePkt.GetPacketPurpose() == PktType::DATAPKT) {
-        m_statNumDataPktRx++;
-        m_statTotalDataRxSize += packet->GetSize();
-          
-      } else {
-        m_statNumIRPktRx++;
-        m_statTotalIrRxSize += packet->GetSize();
-
-      }
-      m_statTotalTime += (Simulator::Now()-timesent);
-
-      if (InetSocketAddress::IsMatchingType (from))
-        {
-          NS_LOG_INFO ("At time delta " << (Simulator::Now ()- timesent).GetSeconds() << " 's client received " << packet->GetSize () << " bytes from " <<
-                       InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
-                       InetSocketAddress::ConvertFrom (from).GetPort () << " for " << (Simulator::Now()-timesent) << "seconds and " << m_startHops-ttlrx << "/" << m_totalHops << " --\n " ); //<< fatePkt);
-        }
-      else if (Inet6SocketAddress::IsMatchingType (from))
-        {
-          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client received " << packet->GetSize () << " bytes from " <<
-                       Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
-                       Inet6SocketAddress::ConvertFrom (from).GetPort ());
-        }
-        NS_LOG_INFO("RX PKT:" << fatePkt);
-        std::cout << "client RX PKT:" << fatePkt << "\n";
     }
+
+    Time timesent;
+    uint64_t ttlrx=0;
+    fatePkt.GetUnsignedNamedAttribute("TtlHop", ttlrx);
+    m_totalHops += (m_startHops-ttlrx);
+
+    if (m_timestamp) {
+      fatePkt.GetObjectCpyNamedAttribute("Timestamp", timesent);
+    }
+    if (fatePkt.GetPacketPurpose() == PktType::DATAPKT) {
+      m_statNumDataPktRx++;
+      m_statTotalDataRxSize += packet->GetSize();
+
+    } else {
+      m_statNumIRPktRx++;
+      m_statTotalIrRxSize += packet->GetSize();
+
+    }
+    m_statTotalTime += (Simulator::Now()-timesent);
+
+    if (InetSocketAddress::IsMatchingType (from))
+    {
+      NS_LOG_INFO ("At time delta " << (Simulator::Now ()- timesent).GetSeconds() << " 's client received " << packet->GetSize () << " bytes from " <<
+                   InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
+                   InetSocketAddress::ConvertFrom (from).GetPort () << " for " << (Simulator::Now()-timesent) << "seconds and " << m_startHops-ttlrx << "/" << m_totalHops << " --\n " ); //<< fatePkt);
+    }
+    else if (Inet6SocketAddress::IsMatchingType (from))
+    {
+      NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client received " << packet->GetSize () << " bytes from " <<
+                   Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
+                   Inet6SocketAddress::ConvertFrom (from).GetPort ());
+    }
+    NS_LOG_INFO("RX PKT:" << fatePkt);
+    std::cout << "client RX PKT:" << fatePkt << "\n";
+  }
 }
 void
 UdpFateFileZipfClient::PrintStats(std::ostream &os) const
 {
-   os << "m_fileNumStart:" << m_fileNumStart << "\n";
-   os << "m_statNumPktsTx:" << m_statNumPktsTx << "\n";
-   os << "m_statNumDataPktRx:" << m_statNumDataPktRx << "\n";
-   os << "m_statNumIRPktRx:" << m_statNumIRPktRx << "\n";
-   os << "m_statTotalTxSize:" << m_statTotalTxSize << "\n";
-   os << "m_statTotalDataRxSize:" << m_statTotalDataRxSize << "\n";
-   os << "m_statTotalIrRxSize:" << m_statTotalIrRxSize << "\n";
-   os << "m_statNumErrorPkts:" << m_statNumErrorPkts << "\n";
-   os << "m_statTotalTime:" << m_statTotalTime << "\n";
-   os << "m_totalHops:" << m_totalHops << "\n";
+  os << "m_fileNumStart:" << m_fileNumStart << "\n";
+  os << "m_statNumPktsTx:" << m_statNumPktsTx << "\n";
+  os << "m_statNumDataPktRx:" << m_statNumDataPktRx << "\n";
+  os << "m_statNumIRPktRx:" << m_statNumIRPktRx << "\n";
+  os << "m_statTotalTxSize:" << m_statTotalTxSize << "\n";
+  os << "m_statTotalDataRxSize:" << m_statTotalDataRxSize << "\n";
+  os << "m_statTotalIrRxSize:" << m_statTotalIrRxSize << "\n";
+  os << "m_statNumErrorPkts:" << m_statNumErrorPkts << "\n";
+  os << "m_statTotalTime:" << m_statTotalTime << "\n";
+  os << "m_totalHops:" << m_totalHops << "\n";
 }
 
-  int UdpFateFileZipfClient::count=0;
+int UdpFateFileZipfClient::count=0;
 } // Namespace ns3

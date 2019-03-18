@@ -1,5 +1,5 @@
 <NodeModule>
-  <UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="8000" associatedStore="FileStore" ContentTypes="File">
+	<UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="40"  ContentTypes="File" > <!--File" or "Icn"-->
     <Utility name="UTILITYBLOCK"  order="1" >
         <Utility name="MULT">
             <Utility name="LRU"   />
@@ -21,6 +21,5 @@
     </Utility>
   </UtilityModule>
   <Store  storeName="CacheBasicStore" name="CacheStore" size="16" storageMethod="MemMap"/>
-  <Store  storeName="CacheBasicStore" name="FileStore" size="16" storageMethod="MemMap"/>
 </NodeModule>
 

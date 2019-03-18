@@ -245,8 +245,9 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
       bool header = fatePkt.GetUnsignedNamedAttribute("Header", exist,false);
       uint32_t maxSegment = 1 ;
       if ( m_segSize.size() > fileNum) {
-	      if (fileNum != 0) {
-        maxSegment = m_segSize[fileNum-1]; }
+        if (fileNum != 0) {
+          maxSegment = m_segSize[fileNum-1];
+        }
       } else {
         maxSegment = m_segSize[m_segSize.size()-1];
       }
@@ -255,10 +256,10 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
         fatePkt.SetUnsignedNamedAttribute("Segments", maxSegment);
         fatePkt.SetUnsignedNamedAttribute("TotalSize", (maxSegment)*m_segSizeBytes);
         fatePkt.SetUnsignedNamedAttribute("SegSize", m_segSizeBytes );
-	if (0 == maxSegment && 0 != m_size) {
-	  std::string data(m_size, 'a');
-	  fatePkt.SetNamedAttribute("DATA", data, false);
-	}
+        if (0 == maxSegment && 0 != m_size) {
+          std::string data(m_size, 'a');
+          fatePkt.SetNamedAttribute("DATA", data, false);
+        }
       } else {  //data segment
         uint64_t segment=0;
         uint64_t byteStart = 0;
@@ -270,7 +271,7 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
         byteRngExists |= fatePkt.GetUnsignedNamedAttribute("ByteEnd", byteEnd);
         if (!segExists && byteRngExists) {
           segment = ((byteEnd)/m_segSizeBytes);
-        } 
+        }
         if (segExists || byteRngExists) {
           if (segment > maxSegment ) {
             fatePkt.SetPacketPurpose(PktType::INTERESTRESPONSEPKT);
@@ -282,23 +283,23 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
 
           } else { //all good
             char value='A'+segment%26;
-	    //auto resize = m_segSizeBytes; //m_size;
-	    //auto resize = m_size;
-	    size_t resize = m_segSizeBytes;
-	    if (byteRngExists)
-		    resize = 1+byteEnd-byteStart;
-	//	    FIXME TODO by does below cause segv?
+            //auto resize = m_segSizeBytes; //m_size;
+            //auto resize = m_size;
+            size_t resize = m_segSizeBytes;
+            if (byteRngExists)
+              resize = 1+byteEnd-byteStart;
+            //	    FIXME TODO by does below cause segv?
 //std::string data(byteEnd-byteStart+1, 'X');
-std::string data(resize, value);
-fatePkt.SetNamedAttribute("DATA", data, false);
+            std::string data(resize, value);
+            fatePkt.SetNamedAttribute("DATA", data, false);
           }
         } else { //assume 1 pkt file, no Header or Segment/byteStart//End attributes
-	  std::string data(m_size, 'z');
-	  fatePkt.SetNamedAttribute("DATA", data, false);
-	  if (m_size) {
+          std::string data(m_size, 'z');
+          fatePkt.SetNamedAttribute("DATA", data, false);
+          if (m_size) {
             fatePkt.SetUnsignedNamedAttribute("Segments", 0);
             fatePkt.SetUnsignedNamedAttribute("TotalSize", m_size);
-	  }
+          }
         }
       }
       m_statNumDataPktTx++;

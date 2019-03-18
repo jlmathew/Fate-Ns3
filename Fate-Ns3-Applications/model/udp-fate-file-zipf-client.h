@@ -152,6 +152,7 @@ private:
   std::string m_xmlpayload;
   std::string m_matchName;
   static int count;
+  bool m_uniqDataNames;
 };
 } // namespace ns3
 
