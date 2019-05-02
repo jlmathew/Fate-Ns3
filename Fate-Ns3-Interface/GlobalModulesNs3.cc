@@ -36,10 +36,11 @@ GlobalModuleTimerNs3::~GlobalModuleTimerNs3(){}
 timer_struct_t
 GlobalModuleTimerNs3::GetTime ()
 {
-  uint64_t ns3_time = ns3::Simulator::Now().GetInteger();
+  uint64_t ns3_time = ns3::Simulator::Now().GetNanoSeconds(); 
+  //uint64_t ns3_time = ns3::Simulator::Now().GetInteger();
   timer_struct_t time;
-  time.tv_sec = ns3_time;
-  time.tv_nsec = counter++;
+  time.tv_sec = ns3_time/1000000000;
+  time.tv_nsec = ns3_time-time.tv_sec;
   return time;
 
 }
