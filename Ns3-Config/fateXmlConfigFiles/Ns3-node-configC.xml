@@ -1,7 +1,9 @@
 <NodeModule>
   <UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="16" >
     <Utility name="UTILITYBLOCK"  order="1" >
-            <Utility name="LRU"  scaling="temporal_increment" />
+	    <Utility name="LRU"  >
+		    <Normalize normalizeName="NormalRanked" value_type-"floor" />
+	    </Utility>
     </Utility>
   </UtilityModule>
 
