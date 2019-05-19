@@ -100,7 +100,7 @@ UdpFateFileZipfClient::GetTypeId (void)
                                      MakeBooleanAccessor (&UdpFateFileZipfClient::m_nStaticDest),
                                      MakeBooleanChecker())
                       .AddAttribute ("matchString", "Match string used to match to server",
-                                     StringValue("/test1/fileNum="),
+                                     StringValue("/test0/fileNum="),
                                      MakeStringAccessor(&UdpFateFileZipfClient::m_matchName),
                                      MakeStringChecker())
                       .AddAttribute ("matchByType", "Match name by 'location | filenum | segnum'",

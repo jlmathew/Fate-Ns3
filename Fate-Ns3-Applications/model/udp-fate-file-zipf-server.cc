@@ -227,18 +227,14 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
       matchName.SetFullName(m_setNameMatch);
       pktName = fatePkt.GetName();
       match = pktName.PartialAttributeMatch(matchName);
-      match |= pktName.GetUniqAttribute("fileNum", fileNum);
+      match &= pktName.GetUniqAttribute("fileNum", fileNum);
     }  //FIXME TODO above, set file num
 
-    //if true, it is a data pkt
-    //rx itnerest stats
-    if (fatePkt.GetPacketPurpose() == PktType::INTERESTPKT) {
-      m_statNumIntPktRx++;
-      m_statTotalIntRxSize += packet->GetSize();
-    }
 
     //reply and stats
     if (match && (fatePkt.GetPacketPurpose() == PktType::INTERESTPKT)) {
+      m_statNumIntPktRx++;
+      m_statTotalIntRxSize += packet->GetSize();
       fatePkt.SetPacketPurpose(PktType::DATAPKT);
       //single or multiple packets?
       uint64_t exist = 0;
@@ -304,7 +300,7 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
       }
       m_statNumDataPktTx++;
       //m_statTotalDataTxSize += packet->GetSize();
-    } else if (fatePkt.GetPacketPurpose() == PktType::INTERESTPKT) {
+    } else if (match && (fatePkt.GetPacketPurpose() == PktType::INTERESTPKT)) {
       //if false, it is a missed interestresponse packet
       //NS_LOG_INFO("BAD PKT:" << fatePkt);
       fatePkt.SetPacketPurpose(PktType::INTERESTRESPONSEPKT);
@@ -314,7 +310,10 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
       //assert(0);
 
     } else {  //do nothing in invalid packet
+	    if (match)
       std::cout << "invalid packet of type:" << fatePkt.GetPacketPurpose() << "\n";
+
+	    //if !match, packet is not meant for us, we just happen to be on the way to the real producer/server
       return;
     }
 
