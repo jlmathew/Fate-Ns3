@@ -248,6 +248,7 @@ void createConsumers(void) {
       echoClient.SetAttribute ("ZipfAlpha", DoubleValue(alpha));
       echoClient.SetAttribute ("NStaticDestination", BooleanValue(true)); //use the static index or not
       echoClient.SetAttribute ("matchByType", StringValue("filenum"));
+      echoClient.SetAttribute ("matchString", StringValue("/test1/fileNum="));
       //broken FIXME TODO echoClient.SetAttribute ("matchByType", StringValue("location"));
 
       PktType fatePkt;
