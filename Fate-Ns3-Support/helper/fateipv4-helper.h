@@ -57,6 +57,8 @@ void SetGlobalModule(GlobalModule *global);
 void SetStats(NodeStats *stats);
 void SetLog(GlobalModuleLog *log);
 void Initialize();
+static void DumpStats(Ptr<Node> node, std::ostream &os);
+void PrintStats(std::ostream &os) const;
 
 private:
 FateIpv4Helper(const FateIpv4Helper &);

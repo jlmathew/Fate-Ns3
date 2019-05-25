@@ -622,9 +622,9 @@ UdpFateCbrClientHelper::DumpStats(Ptr<Node> node, std::ostream &os )const
 {
   for (uint32_t j = 0; j < node->GetNApplications (); j++)
        {
-          Ptr<UdpFateVideoClient> app = DynamicCast<UdpFateVideoClient> (node->GetApplication (j));
+          Ptr<UdpFateCbrClient> app = DynamicCast<UdpFateCbrClient> (node->GetApplication (j));
           if (app) {
-            app->GetObject<UdpFateVideoClient>()->PrintStats(os);
+            app->GetObject<UdpFateCbrClient>()->PrintStats(os);
           }
        }
 }

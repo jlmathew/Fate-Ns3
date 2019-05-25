@@ -123,4 +123,16 @@ void FateIpv4Helper::InstallAll() const {
   Install (NodeContainer::GetGlobal ());
 }
 
+
+void FateIpv4Helper::DumpStats(Ptr<Node> node, std::ostream &os)
+{
+Ptr<FateIpv4L3> fateNode = node->GetObject<FateIpv4L3> ();
+
+
+          if (fateNode) {
+            fateNode->GetFateNode()->LogStats(os);
+          }
+
+}
+
 }
