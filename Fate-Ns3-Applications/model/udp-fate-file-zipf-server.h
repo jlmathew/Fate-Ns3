@@ -93,7 +93,9 @@ private:
   uint64_t m_statNumErrorPkts;
   std::vector<uint32_t> m_segSize;
   uint64_t m_segSizeBytes;
- 
+  uint64_t m_statNumHdrTx; 
+  uint64_t m_statNumHdrRx; 
+  uint64_t m_statNumBytesTx; 
 };
 
 } // namespace ns3

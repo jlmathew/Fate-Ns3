@@ -142,6 +142,10 @@ UdpFateFileZipfClient::UdpFateFileZipfClient ()
   m_startHops=0;
   m_totalHops=0;
   m_fileNumStart=0;
+  m_statNumPktHdrTx=0;
+  m_statNumPktHdrRx=0;
+  m_statNumBytesTx=0;
+  m_statNumBytesRx=0;
 }
 
 UdpFateFileZipfClient::~UdpFateFileZipfClient()
@@ -384,7 +388,7 @@ UdpFateFileZipfClient::SendBody ()
 
   payload.SetName(m_pktName);
   payload.SetPacketPurpose(PktType::INTERESTPKT);
-  std::cout << "Summary: Request body segment:" << m_segCnt << "\n" << payload << "\n";
+  std::cout << "Summary:" << m_pktName << " Request body segment:" << m_segCnt << "\n" << payload << "\n";
   std::vector<uint8_t> fateData;
   payload.ClearTempData();
   payload.Serialize(fateData);
@@ -456,7 +460,6 @@ UdpFateFileZipfClient::Send (void)
     --m_segCnt;
     return;
   }
-  std::cout << "Summary: Requesting new file\n";
   Ptr<Packet> p;
 
   //make copy of 'base' packet
@@ -471,6 +474,7 @@ UdpFateFileZipfClient::Send (void)
   NS_LOG_INFO(" (" << m_fileCnt << "," << m_segCnt << ") - ");
   m_pktName.SetUniqAttribute("fileNum", m_fileCnt+m_fileNumStart);
 
+  std::cout << "Summary: Requesting new file " << m_matchName << "/fileNum" << m_fileCnt+m_fileNumStart << "\n";
   std::string matchName=m_matchName; //"/test1/fileNum=";
   std::stringstream out;
   out << (m_fileCnt+m_fileNumStart);
@@ -482,7 +486,7 @@ UdpFateFileZipfClient::Send (void)
   payload.SetUnsignedNamedAttribute("Header", 1);
 
   payload.SetUnsignedNamedAttribute("PktId", count++);
-
+  ++m_statNumPktHdrTx;
 
   payload.SetName(m_pktName);
   payload.SetPacketPurpose(PktType::INTERESTPKT);
@@ -564,11 +568,14 @@ UdpFateFileZipfClient::HandleRead (Ptr<Socket> socket)
       fatePkt.GetUnsignedNamedAttribute("Segments", m_segCnt);
       fatePkt.GetUnsignedNamedAttribute("SegSize", m_segSize );
       std::cout << "SUMMARY: Received Header\n";
+      m_statNumPktHdrRx++;
+      m_statNumBytesRx+=m_segSize;
     } else {
       uint64_t temp=0;
       bool found = fatePkt.GetUnsignedNamedAttribute("Segment", temp );
       if (found) {
         std::cout << "SUMMARY: Received Body of segment " << temp << "\n";
+        m_statNumBytesRx+=m_segSize;
       }
       else {
         std::cout << "SUMMARY: Rx ICN packet\n";
@@ -624,6 +631,10 @@ UdpFateFileZipfClient::PrintStats(std::ostream &os) const
   os << "m_statNumErrorPkts:" << m_statNumErrorPkts << "\n";
   os << "m_statTotalTime:" << m_statTotalTime << "\n";
   os << "m_totalHops:" << m_totalHops << "\n";
+  os << "m_statNumPktHdrTx:" << m_statNumPktHdrTx << "\n";
+  os << "m_statNumPktHdrRx:" << m_statNumPktHdrRx << "\n";
+  os << "m_statNumBytesRx:" << m_statNumPktHdrRx << "\n";
+  os << "m_statNumBytesTx:" << m_statNumPktHdrRx << "\n";
 }
 
 int UdpFateFileZipfClient::count=0;

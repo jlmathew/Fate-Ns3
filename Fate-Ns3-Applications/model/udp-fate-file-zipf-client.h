@@ -153,6 +153,10 @@ private:
   std::string m_matchName;
   static int count;
   bool m_uniqDataNames;
+  uint64_t m_statNumPktHdrTx;
+  uint64_t m_statNumPktHdrRx;
+  uint64_t m_statNumBytesTx;
+  uint64_t m_statNumBytesRx;
 };
 } // namespace ns3
 

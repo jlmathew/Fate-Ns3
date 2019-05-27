@@ -88,6 +88,9 @@ UdpFateFileZipfServer::UdpFateFileZipfServer ()
   m_statNumErrorPkts=0;
   m_statTotalIntRxSize=0;
   m_segSizeBytes=0;
+  m_statNumHdrTx=0;
+  m_statNumHdrRx=0;
+  m_statNumBytesTx=0;
 }
 
 UdpFateFileZipfServer::~UdpFateFileZipfServer()
@@ -256,7 +259,11 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
           std::string data(m_size, 'a');
           fatePkt.SetNamedAttribute("DATA", data, false);
         }
+	m_statNumHdrTx++;
+	m_statNumHdrRx++;
+	      m_statNumBytesTx+=m_segSizeBytes;
       } else {  //data segment
+	      m_statNumBytesTx+=m_segSizeBytes;
         uint64_t segment=0;
         uint64_t byteStart = 0;
         uint64_t byteEnd = 0;
@@ -395,6 +402,9 @@ UdpFateFileZipfServer::PrintStats(std::ostream &os) const
   os << "m_statTotalNotMatchTxSize:" << m_statTotalNotMatchTxSize << "\n";
   os << "m_statTotalIntRxSize:" << m_statTotalIntRxSize << "\n";
   os << "m_statNumErrorPkts:" << m_statNumErrorPkts << "\n";
+  os << "m_statNumHdrTx:" << m_statNumHdrTx << "\n";
+  os << "m_statNumHdrRx:" << m_statNumHdrTx << "\n";
+  os << "m_statNumBytesTx:" << m_statNumHdrTx << "\n";
 }
 
 } // Namespace ns3
