@@ -3,10 +3,10 @@
     <Utility name="UTILITYBLOCK"  order="1" >
         <Utility name="MULT">
 		<Utility name="LRU" >
-			<Normalize normalizeName="NormalRanked" value_type="floor" />
+			<Normalize normalizeName="NormalRanked" value_type="fullRange" />
 		</Utility>
             	<Utility name="LFU" >
-			<Normalize normalizeName="NormalRanked" value_type="floor" />
+			<Normalize normalizeName="NormalRanked" value_type="ceiling" />
 		</Utility>
         </Utility>
     </Utility>

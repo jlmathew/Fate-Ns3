@@ -567,14 +567,14 @@ UdpFateFileZipfClient::HandleRead (Ptr<Socket> socket)
     {
       fatePkt.GetUnsignedNamedAttribute("Segments", m_segCnt);
       fatePkt.GetUnsignedNamedAttribute("SegSize", m_segSize );
-      std::cout << "SUMMARY: Received Header\n";
+      std::cout << "SUMMARY: Received Header for " << fatePkt.GetAcclName() <<"\n";
       m_statNumPktHdrRx++;
       m_statNumBytesRx+=m_segSize;
     } else {
       uint64_t temp=0;
       bool found = fatePkt.GetUnsignedNamedAttribute("Segment", temp );
       if (found) {
-        std::cout << "SUMMARY: Received Body of segment " << temp << "\n";
+        std::cout << "SUMMARY: Received Body of " << fatePkt.GetAcclName() << " segment " << temp << "\n";
         m_statNumBytesRx+=m_segSize;
       }
       else {
