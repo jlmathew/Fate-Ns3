@@ -135,6 +135,7 @@ private:
   double m_alpha;
   Ptr<ZipfRandomVariable> m_zipf;
   //IcnName<std::string> m_pktName;
+  bool m_useHeader;
     //local stats
   uint64_t m_statNumPktsTx; //interest
   uint64_t m_statNumDataPktRx; //data

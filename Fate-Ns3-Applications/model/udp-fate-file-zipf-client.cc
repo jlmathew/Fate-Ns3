@@ -84,6 +84,10 @@ UdpFateFileZipfClient::GetTypeId (void)
                                      UintegerValue (10),
                                      MakeUintegerAccessor (&UdpFateFileZipfClient::m_maxFiles),
                                      MakeUintegerChecker<uint32_t> ())
+                      .AddAttribute ("FileMultipart", "request individual packets or files of x length",
+                                     BooleanValue (false),
+                                     MakeBooleanAccessor (&UdpFateFileZipfClient::m_useHeader),
+                                     MakeBooleanChecker())
                       .AddAttribute ("AddTimeStamp", "Add a timestamp to each packet",
                                      BooleanValue (false),
                                      MakeBooleanAccessor (&UdpFateFileZipfClient::m_timestamp),
@@ -483,6 +487,7 @@ UdpFateFileZipfClient::Send (void)
   if(m_timestamp) {
     payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
   }
+  if (m_useHeader)
   payload.SetUnsignedNamedAttribute("Header", 1);
 
   payload.SetUnsignedNamedAttribute("PktId", count++);
@@ -563,22 +568,36 @@ UdpFateFileZipfClient::HandleRead (Ptr<Socket> socket)
     //is it a header?
     uint64_t tmp;
     bool isHdr = fatePkt.GetUnsignedNamedAttribute("Header", tmp);
+    std::string hitstr, tmpstr;
+    bool cacheHit = fatePkt.GetNamedAttribute("CacheNodeName", tmpstr);
+    if (cacheHit) {
+        hitstr="cache hit at "+tmpstr;
+    } else  {
+
+       bool serverHit = fatePkt.GetNamedAttribute("ServerHitNodeName", tmpstr);
+       if (serverHit)
+        hitstr="server hit at "+tmpstr;
+       else
+	  hitstr="NO ORIGIN RECORDED";
+    } 
+
+
     if (isHdr)
     {
       fatePkt.GetUnsignedNamedAttribute("Segments", m_segCnt);
       fatePkt.GetUnsignedNamedAttribute("SegSize", m_segSize );
-      std::cout << "SUMMARY: Received Header for " << fatePkt.GetAcclName() <<"\n";
+      std::cout << "SUMMARY: Received Header for " << fatePkt.GetAcclName() << " hit at " << hitstr << "\n";
       m_statNumPktHdrRx++;
       m_statNumBytesRx+=m_segSize;
     } else {
       uint64_t temp=0;
       bool found = fatePkt.GetUnsignedNamedAttribute("Segment", temp );
       if (found) {
-        std::cout << "SUMMARY: Received Body of " << fatePkt.GetAcclName() << " segment " << temp << "\n";
+        std::cout << "SUMMARY: Received Body of " << fatePkt.GetAcclName() << " segment " << temp << " hit at " << hitstr << "\n";
         m_statNumBytesRx+=m_segSize;
       }
       else {
-        std::cout << "SUMMARY: Rx ICN packet\n";
+        std::cout << "SUMMARY: Rx ICN packet " << fatePkt.GetAcclName() << " hit at " << hitstr << "\n";
       }
 
     }
