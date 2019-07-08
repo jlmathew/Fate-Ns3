@@ -74,6 +74,7 @@ private:
 
   uint16_t m_port; //!< Port on which we listen for incoming packets.
   uint16_t m_size;
+  uint32_t m_qosBitmask;
   Ptr<Socket> m_socket; //!< IPv4 Socket
   Ptr<Socket> m_socket6; //!< IPv6 Socket
   Address m_local; //!< local multicast address

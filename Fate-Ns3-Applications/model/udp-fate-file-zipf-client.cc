@@ -569,14 +569,21 @@ UdpFateFileZipfClient::HandleRead (Ptr<Socket> socket)
     uint64_t tmp;
     bool isHdr = fatePkt.GetUnsignedNamedAttribute("Header", tmp);
     std::string hitstr, tmpstr;
+    uint64_t qos;
+    bool isqos = fatePkt.GetUnsignedNamedAttribute("QOS", qos);
     bool cacheHit = fatePkt.GetNamedAttribute("CacheNodeName", tmpstr);
     if (cacheHit) {
         hitstr="cache hit at "+tmpstr;
+	if (isqos)
+		hitstr+=" and QOS= "+std::to_string(qos);
     } else  {
 
        bool serverHit = fatePkt.GetNamedAttribute("ServerHitNodeName", tmpstr);
-       if (serverHit)
+       if (serverHit) {
         hitstr="server hit at "+tmpstr;
+	if (isqos)
+		hitstr+=" and QOS= "+std::to_string(qos);
+       }
        else
 	  hitstr="NO ORIGIN RECORDED";
     } 

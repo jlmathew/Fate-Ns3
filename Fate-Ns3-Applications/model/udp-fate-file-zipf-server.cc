@@ -53,6 +53,10 @@ UdpFateFileZipfServer::GetTypeId (void)
                                      UintegerValue (100),
                                      MakeUintegerAccessor (&UdpFateFileZipfServer::m_port),
                                      MakeUintegerChecker<uint16_t> ())
+                      .AddAttribute ("QoS", "QoS bitmask.",
+                                     UintegerValue (0),
+                                     MakeUintegerAccessor (&UdpFateFileZipfServer::m_qosBitmask),
+                                     MakeUintegerChecker<uint16_t> ())
                       .AddAttribute ("ReturnSize", "Size of the data attribute in the packet, using <DATA> attribute tag.",
                                      UintegerValue (1),
                                      MakeUintegerAccessor (&UdpFateFileZipfServer::m_size),
@@ -329,6 +333,12 @@ UdpFateFileZipfServer::HandleRead (Ptr<Socket> socket)
     std::string tmpName="Node"+std::to_string(GetNode()->GetId());
 
     fatePkt.SetNamedAttribute("ServerHitNodeName", tmpName, false);
+
+    uint64_t bitmatch;
+    bool bitmatch_exist =  fatePkt.GetName().GetUniqAttribute("fileNum", bitmatch);
+    if (bitmatch_exist && (bitmatch == m_qosBitmask)) { //& or == ?
+          fatePkt.SetUnsignedNamedAttribute("QOS", m_qosBitmask & bitmatch);
+    }
 
     std::string retChain;
     bool chainRetResult = fatePkt.GetNamedAttribute("ReturnChain", retChain);
