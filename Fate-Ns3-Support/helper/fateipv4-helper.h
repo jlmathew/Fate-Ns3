@@ -58,6 +58,7 @@ void SetStats(NodeStats *stats);
 void SetLog(GlobalModuleLog *log);
 void Initialize();
 static void DumpStats(Ptr<Node> node, std::ostream &os);
+static void DumpStore(Ptr<Node> node, std::ostream &os);
 void PrintStats(std::ostream &os) const;
 
 private:

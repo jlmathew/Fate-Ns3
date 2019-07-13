@@ -124,15 +124,19 @@ void FateIpv4Helper::InstallAll() const {
 }
 
 
+void FateIpv4Helper::DumpStore(Ptr<Node> node, std::ostream &os)
+{
+Ptr<FateIpv4L3> fateNode = node->GetObject<FateIpv4L3> ();
+          if (fateNode) {
+            fateNode->GetFateNode()->DumpAll(os);
+          }
+}
 void FateIpv4Helper::DumpStats(Ptr<Node> node, std::ostream &os)
 {
 Ptr<FateIpv4L3> fateNode = node->GetObject<FateIpv4L3> ();
-
-
           if (fateNode) {
             fateNode->GetFateNode()->LogStats(os);
           }
-
 }
 
 }
