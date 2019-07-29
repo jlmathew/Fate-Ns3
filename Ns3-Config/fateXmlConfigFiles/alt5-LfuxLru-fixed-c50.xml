@@ -1,21 +1,20 @@
 <NodeModule>
-	<UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="50"  ContentTypes="Icn" > <!--File" or "Icn"-->
+  <UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="50"  ContentTypes="Icn" > <!--File" or "Icn"-->
     <Utility name="UTILITYBLOCK"  order="1" >
-	<Utility name="MAX" >
-	  <Utility name="SUM" >
-	    <Utility name="MULT" >
-	        <Utility name="LFU" >
-                  <Normalize normalizeName="NormalRanked" value_type="ceiling" />
-                </Utility>
-                <Utility name="CONST" defaultValue="0.98" />
-	      </Utility>
-            <Utility name="MULT">
-              <Utility name="CONST" defaultValue="0.02" />
-              <Utility name="RND" randomType="alwaysRnd"  />
+      <Utility name="MULT" >
+	<Utility name="SUM" >
+	  <Utility name="MULT" >
+	    <Utility name="LRU" >
+              <Normalize normalizeName="StepRanked"  />
             </Utility>
-          </Utility>
-          <Utility name="PLE" />
+            <Utility name="CONST" defaultValue="0.8" />
+	  </Utility>
+	  <Utility name="CONST" defaultValue="0.2" />
 	</Utility>
+	<Utility name="LFU" >
+            <Normalize normalizeName="StepRanked" />
+        </Utility>
+      </Utility>
     </Utility>
   </UtilityModule>
 

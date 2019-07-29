@@ -10,7 +10,7 @@
                 <Utility name="CONST" defaultValue="0.98" />
 	      </Utility>
             <Utility name="MULT">
-              <Utility name="CONST" defaultValue="0.98" />
+              <Utility name="CONST" defaultValue="0.02" />
               <Utility name="RND" randomType="alwaysRnd"  />
             </Utility>
           </Utility>

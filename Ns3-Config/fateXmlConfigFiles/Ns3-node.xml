@@ -1,0 +1,15 @@
+<NodeModule>
+  <UtilityModule moduleName="SecurityBasicManager" order="1" >
+    <Utility name="UTILITYBLOCK" proxyName="SecurityBlock" order="1">
+        <Utility name="COUNT" missing_count_value="10" matching_lower_bound="0" matching_upper_bound="1" count_condition="decrement" match_criteria="LeftRightInclusive" attribName="TtlHop" />
+    </Utility>
+  </UtilityModule>
+  
+  <UtilityModule moduleName="ForwardNs3Ipv4Manager" order="3"  >
+    <Utility name="UTILITYBLOCK" order="1">
+        <Utility name="NAMECHAIN" appendNodeName="true" m_defaultAttribute="Path:" nodeNamePartition=" ; " appendIfnExist="true" appendInFront="false"  nodeNameUnique="false"/>
+    </Utility>
+  </UtilityModule>
+
+</NodeModule>
+

@@ -1,7 +1,7 @@
 <NodeModule>
-	<UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="50"  ContentTypes="Icn" > <!--File" or "Icn"-->
-    <Utility name="UTILITYBLOCK"  order="1" >
-	<Utility name="MAX" >
+  <UtilityModule moduleName="CacheEvaluationManager" order="1" cacheTrackingSize="2500" setAttribName="LfuEval" fieldUseTemp="true" >
+    <Utility name="UTILITYBLOCK" proxyName="SecurityBlock" order="1">
+       <Utility name="MAX" >
 	  <Utility name="SUM" >
 	    <Utility name="MULT" >
 	        <Utility name="LFU" >
@@ -15,7 +15,13 @@
             </Utility>
           </Utility>
           <Utility name="PLE" />
-	</Utility>
+      </Utility>
+    </Utility>
+  </UtilityModule>
+
+	<UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="10"  ContentTypes="Icn" > <!--File" or "Icn"-->
+    <Utility name="UTILITYBLOCK"  order="1" >
+	<Utility name="NormEval" useTempAttribute="true" attribName="LfuEval" />
     </Utility>
   </UtilityModule>
 

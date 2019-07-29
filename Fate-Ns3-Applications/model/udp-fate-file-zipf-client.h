@@ -158,6 +158,7 @@ private:
   uint64_t m_statNumPktHdrRx;
   uint64_t m_statNumBytesTx;
   uint64_t m_statNumBytesRx;
+  uint32_t m_qos;
 };
 } // namespace ns3
 
