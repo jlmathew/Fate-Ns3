@@ -261,7 +261,9 @@ UdpFateVideoClient2::initPlayPkt()
   sdpname.append(getVideoSdp());
 sdpname.append(" &");
 std::cout << sdpname << "\n";
-  system(sdpname.c_str());
+  int ret = system(sdpname.c_str());
+  if (ret < 0) 
+	  NS_ASSERT(ret > 0);
 
   sockfdv = socket(AF_INET, SOCK_DGRAM,IPPROTO_UDP);
   sockfda = socket(AF_INET, SOCK_DGRAM,IPPROTO_UDP);
