@@ -54,7 +54,7 @@ using namespace ns3;
 
 
   double alpha[4] = {1.0, 1.0, 1.0, 1.0};
-  double reqRate[4] = {100.0, 50.0, 50.0, 1.0};
+  double reqRate[4] = {100.0, 100.0, 100.0, 100.0};
 NS_LOG_COMPONENT_DEFINE ("FateFileExample");
 UtilityExternalModule *mod;
 GlobalModuleTimerNs3 *timer;
@@ -220,7 +220,6 @@ createFateLogs() {
   for(unsigned int i=0; i<cachingNodes.GetN(); i++) {
     fs4 << "\nCached Node(cache" << i << ":n" << consumers.Get(i)->GetId()<< "):\n";
     FateIpv4Helper::DumpStats(cachingNodes.Get(i), fs4);
-    FateIpv4Helper::DumpStore(cachingNodes.Get(i), fs4);
   }
   
   fs4 << "\n";
@@ -344,20 +343,21 @@ main (int argc, char *argv[])
   pTopo="Single"; //single, or random
   cTopo="Edge"; //edge or random
   cacheTopo="Edge"; //edge or random
-  nFiles = 100000; //10000;
-  logName="logs/testing"; //"logs/default";
+  nFiles = 50; //100000; //10000;
+  logName="logs/default";
   fileLengthName=""; //"fileLengths.txt";
 
   format="Orbis"; //RocketFuel, Inet, Orbis
 //FIXME HERE
-//cConfig="fateXmlConfigFiles/lfuxlru2.xml";  //no config or name of xml file
-  cConfig="fateXmlConfigFiles/Lru.xml";  //no config or name of xml file
+//cConfig="fateXmlConfigFiles/lfuxlru-fixed-c50.xml";  //no config or name of xml file
+  //cConfig="fateXmlConfigFiles/Lru.xml";  //no config or name of xml file
+  cConfig="fateXmlConfigFiles/lfuxlru-fresh-linear-c50.xml";
   //cConfig="fateXmlConfigFiles/Ns3-node.xml";
   nConfig="fateXmlConfigFiles/Ns3-node.xml";
   numClientPerNodes=1;
   seed = 1;
-  totTime=41; //0;
-  maxPkts=40900; //1000000; //000;
+  totTime=120; //3600; //0;
+  maxPkts=100000; //000;
   std::string matchType="filenum"; //"location";
   //std::string matchType="location"; //"location";
   double alpha2=1.0; //.9999999999;
@@ -380,6 +380,7 @@ main (int argc, char *argv[])
   cmd.AddValue("maxPkts", "maximum number of interest packets to send.  '0' = unlimited",maxPkts);
   cmd.Parse (argc,argv);
 
+  std::cout << cConfig << "\n";
   //parse fileLengthName into fileLengths
   if (fileLengthName.size()) {
     std::string strbuf;
@@ -411,14 +412,14 @@ main (int argc, char *argv[])
   //Config::SetDefault ("ns3::DropTailQueue::MaxPackets", StringValue ("1000000"));
   Config::SetDefault ("ns3::PointToPointChannel::Delay", StringValue ("1ms"));
   createTopology(input, format);
-    //create1Producers(15, 3);
-    //create1Producers(9, 2);
+    create1Producers(7, 3);
+    create1Producers(6, 2);
     create1Producers(5, 1);
 //consumers
+    //create1PreConsumers(0, alpha2, reqRate[0], 1);
     create1PreConsumers(0, alpha2, reqRate[0], 1);
-    //create1PreConsumers(0, alpha[0], reqRate[0], 1);
-    //create1PreConsumers(2, alpha[1], reqRate[1], 2);
-    //create1PreConsumers(3, alpha[2], reqRate[2], 3);
+    create1PreConsumers(2, alpha2, reqRate[1], 2);
+    create1PreConsumers(3, alpha2, reqRate[2], 3);
 
     postConsumer();
 //node 1 is cache
@@ -443,11 +444,11 @@ main (int argc, char *argv[])
   }
   //createConsumers();
   clientApps[0].Start (Seconds (2.0));
-  clientApps[0].Stop (Seconds (totTime+.5));
-  //clientApps[1].Start (Seconds (2.0));
-  //clientApps[2].Start (Seconds (2.0));
-  //clientApps[2].Stop (Seconds (totTime+.5));
-  //clientApps[1].Stop (Seconds (totTime+.5));
+  clientApps[0].Stop (Seconds (totTime/3+.5));
+  clientApps[1].Start (Seconds (totTime/3+2.0));
+  clientApps[2].Start (Seconds (2*totTime/3+2.0));
+  clientApps[2].Stop (Seconds (totTime+.5));
+  clientApps[1].Stop (Seconds (2*totTime/3+.5));
 
   if(verbose) {
     setLogging();

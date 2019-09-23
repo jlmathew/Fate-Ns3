@@ -350,9 +350,7 @@ main (int argc, char *argv[])
 
   format="Orbis"; //RocketFuel, Inet, Orbis
 //FIXME HERE
-//cConfig="fateXmlConfigFiles/lfuxlru2.xml";  //no config or name of xml file
-  cConfig="fateXmlConfigFiles/Lru.xml";  //no config or name of xml file
-  //cConfig="fateXmlConfigFiles/Ns3-node.xml";
+  cConfig="fateXmlConfigFiles/Lfu-extended-50-c10.xml";  //no config or name of xml file
   nConfig="fateXmlConfigFiles/Ns3-node.xml";
   numClientPerNodes=1;
   seed = 1;

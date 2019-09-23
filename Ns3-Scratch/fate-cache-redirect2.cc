@@ -113,9 +113,9 @@ int32_t totlinks;
 ApplicationContainer serverApps;
 ApplicationContainer clientApps;
 uint32_t numClientPerNodes;
-NodeStats *stats;
-GlobalModule *global;
-DeviceModule *devMod;
+NodeStats *stats=NULL;
+GlobalModule *global=NULL;
+DeviceModule *devMod=NULL;
 
 std::string logName;
 uint32_t maxPkts;
@@ -130,8 +130,13 @@ uint32_t seed;
 uint32_t totTime;
 std::string cConfig;
 std::string nConfig;
-
 std::map<Ipv4Address, std::string> *dns;
+uint32_t nCaches=1; //20;
+//NodeContainer availNodes;
+//NodeContainer consumers;
+//NodeContainer producers;
+NodeContainer caches;
+std::vector<unsigned int> availNodes;
 
 //Fischer-Yates shuffle
 void shuffle(std::vector<unsigned int> &v)
@@ -151,31 +156,31 @@ void shuffle(std::vector<unsigned int> &v)
 
 }
 void setProducers(void) {
-    uint32_t numProd = producers.GetN();
+    /*uint32_t numProd = producers.GetN();
     std::vector<unsigned int> count(nFiles,0);
     for(unsigned int i=0; i< nFiles; i++)
     {
        count[i]=i;
     }
-    shuffle(count);
-    for(unsigned int i=0; i< nFiles; i++)
+    shuffle(count);*/
+    for(unsigned int i=0; i< producers.GetN(); i++)
     {
       UdpFateServerHelper echoServer(100+i);
       echoServer.SetAttribute("ReturnSize", UintegerValue(500));
-      std::string matchName="/test1/fileNum=";
-      //std::string matchName="/test1";
-      std::stringstream out;
-      out << count[i]+1;
-      matchName.append(out.str());
+      ///std::string matchName="/test"+std::to_string(i+1)+"/fileNum=";
+      std::string matchName="/test"+std::to_string(i+1);
+      //std::stringstream out;
+      //out << count[i]+1;
+      //matchName.append(out.str());
 
       echoServer.SetAttribute("MinMatchName", StringValue(matchName));
-      int p;
+      /*int p;
       if (nFiles >= numProd) {
         p = i % numProd;
       } else {
         assert(0);
-      }
-      serverApps.Add( echoServer.Install(producers.Get(p)));
+      }*/
+      serverApps.Add( echoServer.Install(producers.Get(i)));
     }
     NS_LOG_INFO("actual post nFile servers are:" << serverApps.GetN());
 }
@@ -188,9 +193,9 @@ void create1Producers(unsigned int nodeNum) {
     setProducers();
 }
 
-void createConsumers(void) {
+void createAllConsumers(void) {
     // Ptr<Node> newNode = CreateObject<Node>();
-    consumers.Add(nodes.Get(0));
+    //consumers.Add(nodes.Get(0));
     //stack.Add(consumers);
     //stack.InstallAll();
     //stack.Install(consumers);
@@ -199,7 +204,8 @@ void createConsumers(void) {
 
 
   //  
-  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+  //Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+  for(unsigned int i=0; i<consumers.GetN(); i++) {
 
     //add application to each
      UdpFateZipfClientHelper echoClient(ipic[0].GetAddress (1),9);   //based upon the name, it will map to an ip/port
@@ -210,30 +216,37 @@ void createConsumers(void) {
        echoClient.SetAttribute ("AddTimeStamp", BooleanValue(true));
        echoClient.SetAttribute ("ZipfAlpha", DoubleValue(alpha));
        echoClient.SetAttribute ("NStaticDestination", BooleanValue(true)); //use the static index or not
-
+       echoClient.SetAttribute ("NStaticDestination", BooleanValue(true)); //use the static index or not
+       echoClient.SetAttribute ("matchByType", StringValue("location")); //filenum, location, segnum
+       echoClient.SetAttribute("sendToOffPathCache", BooleanValue(true));
+       
+      //Need to make this variable AND loop for all consumers 
+       std::string temp="/test"+std::to_string( (i%producers.GetN())+1);
+       echoClient.SetAttribute("matchString", StringValue(temp));
        PktType fatePkt;
        fatePkt.SetUnsignedNamedAttribute("TtlHop", 128);
        fatePkt.SetPacketPurpose(PktType::INTERESTPKT);
-       std::string cacheTrip="10.0.0.13";
-       cacheTrip.push_back(';');
+       //std::string cacheTrip="10.0.0.13"; //<--redirect cache IP
+       //cacheTrip.push_back(';');
        //cacheTrip.append("10.0.0.22");
        //cacheTrip += '\n';
-       fatePkt.SetPrintedNamedAttribute("DstChain",cacheTrip);
-       fatePkt.SetPrintedNamedAttribute("ReturnChain","");
+       //fatePkt.SetPrintedNamedAttribute("DstChain",cacheTrip);
+       //fatePkt.SetPrintedNamedAttribute("ReturnChain","");
        IcnName<std::string> pktName;
+       //pktName.SetFullName("/test1/segnum=");
        pktName.SetFullName("/test1");
        fatePkt.SetName(pktName);
        std::stringstream out;
        out << fatePkt;
        echoClient.SetAttribute ("PktPayload", StringValue(out.str())); //use the static index or not
-       clientApps.Add(echoClient.Install(consumers.Get(0)));
+       clientApps.Add(echoClient.Install(consumers.Get(i)));
        //auto app = echoClient.Install(consumers.Get(0)); //i));
        //app.SetPktPayload(fatePkt);
        //clientApps.Add(app);
        //Ptr<UdpFateZipfClient> zapp = DynamicCast<UdpFateZipfClient>(app.Get(j)); 
        //zapp->SetPktPayload(fatePkt);
    //seems the only way to preload the packet type, is to do it here
-
+   }
    
 
     
@@ -243,45 +256,52 @@ void createConsumers(void) {
 void
 createAllCacheNodes()
 {
-    Ptr<Node> node = nodes.Get(4); //4
-      cachingNodes.Add(node);
+    //Ptr<Node> node = nodes.Get(4); //4
+    //  cachingNodes.Add(node);
 
-    Ptr<Node> node1 = nodes.Get(1);  //1
-    Ptr<Node> node2 = nodes.Get(2);
-    Ptr<Node> node5 = nodes.Get(5);
-      nonCachingNodes.Add(node1);
-      nonCachingNodes.Add(node2);
-      nonCachingNodes.Add(node5);
-    Ptr<Node> nodea = nodes.Get(0);
-    Ptr<Node> nodeb = nodes.Get(3);
-      nonCachingNodes.Add(nodea);
-      nonCachingNodes.Add(nodeb);
+      //nonCachingNodes.Add(node1);
+}
+
+void createSubFateNodes(const std::string &config, const NodeContainer &nodes)
+{
+	UtilityConfigXml cconfig;
+	//system sed file ? ; TODO FIXME JLM
+	
+      cconfig.FirstNodeFileConfig(config);
+      FateIpv4Helper helper;
+      helper.SetConfigFile(config);
+      //if (!stats)
+        stats= new CustomStats;
+     // if(!global) {
+	      GlobalModule *global = new GlobalModule;
+        GlobalModuleTimerNs3 *timer = new GlobalModuleTimerNs3;
+        global->SetGlobalTimer(timer);
+        GlobalModuleLog *log = new CoutModuleLog;
+        global->SetGlobalLog("default", log );
+        global->dnsEntry = GetDns(); //(void *) (dns);
+     // }
+      helper.SetStats(stats);
+      helper.SetLog(log);
+      helper.SetGlobalModule(global);
+      helper.Install(nodes);
+
 }
 
 void createFateNodes(const std::string &cConfig, const std::string &nConfig) {
     //cache only nodes are cConfig, all else are nConfig.
-      UtilityConfigXml config;
-      config.FirstNodeFileConfig(cConfig);
-      FateIpv4Helper helper;
-      helper.SetConfigFile(cConfig);
-      stats= new CustomStats;
-      GlobalModule *global = new GlobalModule;
-      GlobalModuleTimerNs3 *timer = new GlobalModuleTimerNs3;
-      global->SetGlobalTimer(timer);
-      GlobalModuleLog *log = new CoutModuleLog;
-      global->SetGlobalLog("default", log );
-      global->dnsEntry = (void *) (dns);
-      helper.SetStats(stats);
-      helper.SetLog(log);
-      helper.SetGlobalModule(global);
-      helper.Install(cachingNodes);
-
 //was cancelled out ... necessary?
-      helper.SetConfigFile(nConfig);
-      helper.Install(nonCachingNodes);
+//
+createSubFateNodes(cConfig, caches);
+createSubFateNodes(nConfig, producers );
+createSubFateNodes(nConfig, consumers );
+NodeContainer restNodes;
+for(unsigned int i=0; i<availNodes.size(); i++)
+{
+    restNodes.Add(NodeContainer::GetGlobal().Get(availNodes[i]));
+}
+createSubFateNodes(nConfig, restNodes  ); //non cache/producer/consumer nodes
 
-   
-
+std::cout << " initialized " << caches.GetN() + producers.GetN() + consumers.GetN()+ restNodes.GetN() << "nodes out of " << NodeContainer::GetGlobal().GetN() << "\n";
 }
 void
 createFateLogs() {
@@ -321,6 +341,18 @@ createFateLogs() {
     fs3.close();
 
 
+  name=logName;
+  name.append("-cache.stat");
+  std::fstream fs4;
+  fs4.open(name,std::fstream::out );
+
+  //preclients.DumpStats(consumers.Get (0),std::cout);
+  for(unsigned int i=0; i<caches.GetN(); i++) {
+    fs4 << "\nCached Node(cache" << i << ":n" << caches.Get(i)->GetId()<< "):\n";
+    FateIpv4Helper::DumpStats(caches.Get(i), fs4);
+  }
+  
+  fs4 << "\n";
 }
 
 //option to enable/disable logging
@@ -418,6 +450,56 @@ void createTopology(std::string input, std::string format, int ratePerSec) {
     }
 }
 
+void prepNodes()
+{
+  //availNodes= NodeContainer::GetGlobal();
+  for(unsigned int i=0; i<NodeContainer::GetGlobal().GetN() ; i++) 
+  {    availNodes.push_back(i); }
+  shuffle(availNodes);
+
+}
+void createProducers(unsigned int n)
+{
+	std::cout << "Producers:";
+   for(unsigned int i=0; i<n; i++)
+   {
+       unsigned int num=availNodes.back();
+       producers.Add(NodeContainer::GetGlobal().Get(num));
+       availNodes.pop_back();
+       std::cout << num << ",";
+   } 
+   std::cout << "\n";
+   setProducers();
+}
+void createConsumers(unsigned int n)
+{
+	std::cout << "Consumers:";
+   for(unsigned int i=0; i<n; i++)
+   {
+       unsigned int num=availNodes.back();
+       consumers.Add(NodeContainer::GetGlobal().Get(num));
+       availNodes.pop_back();
+       std::cout << num << ",";
+   } 
+   std::cout << "\n";
+
+}
+void createCaches(unsigned int n)
+{
+	std::cout << "Caches:";
+   for(unsigned int i=0; i<n; i++)
+   {
+       unsigned int num=availNodes.back();
+       caches.Add(NodeContainer::GetGlobal().Get(num));
+       availNodes.pop_back();
+       std::cout << num << ",";
+   } 
+   std::cout << "\n";
+}
+void createAllCaches()
+{
+     caches=NodeContainer::GetGlobal();
+}
 int 
 main (int argc, char *argv[])
 {
@@ -425,42 +507,42 @@ main (int argc, char *argv[])
 
 Packet::EnablePrinting();
 Packet::EnableChecking();
-  //input="scratch/ns3-ATT-topology.txt";
-  input="scratch/simple.orb";
+    //input="scratch/ns3-ATT-topology.txt";
+  input="scratch/simple3.orb";
   //std::string input("./Inet/inet.3200");
   format= "Orbis";
-  //format= "Inet";
+     //format= "Inet";
   //std::string nput ("./rocketfuel/maps/1239/latencies.intra");
   //std::string input ("./src/topology-read/examples/RocketFuel_toposample_1239_weights.txt");
   //std::string format ("Rocketfuel");
   //std::string input("./src/topology-read/examples/Orbis_toposample.txt");
   //std::string format ("Orbis");
-  reqRate=1 ;//20;  //req in seconds
-  nProd=3;
+  reqRate=20;  //req in seconds
+  nProd=1; //10;
   //double nCons=100;
-  nCons=1;
+  nCons=1; //60;
   //std::string pTopo("Single"); //single, or random
   //std::string cTopo("Edge"); //edge or random
-  pTopo="Single"; //single, or random
+  pTopo="Random";//Single"; //single, or random
   //std::string cTopo("Random"); //edge or random
-  cTopo="Edge"; //edge or random
-  cacheTopo="Edge"; //edge or random
+  cTopo="Random";//Edge"; //edge or random
+  cacheTopo="Random";//Edge"; //edge or random
   //std::string cacheTopo("All"); //edge or random
-  nFiles = 3; //10000;
-  logName="testing"; //"logs/default";
+  nFiles = 5; //50000;
+  logName="logs/default";
   nSeg=1;
   alpha = 1;
   //std::string cConfig("");  //no config or name of xml file
    //cConfig="fateXmlConfigFiles/Ns3-node-configC.xml";  //no config or name of xml file
-   cConfig="fateXmlConfigFiles/Lru-reroute.xml";  //no config or name of xml file
+   cConfig="fateXmlConfigFiles/Lru-reroute3.xml";  //no config or name of xml file
   //std::string nConfig("");
   nConfig="fateXmlConfigFiles/nocache.xml";
   bool exclusiveContent=true; //either producers are exclusive in content or they all share the same
   numClientPerNodes=1;
    seed = 1;
-   totTime=5; //0;
+   totTime=25; //0;
   maxPkts=1000000; //000;
-
+  unsigned int cSize=10;
 
   CommandLine cmd;
 
@@ -474,6 +556,7 @@ Packet::EnableChecking();
   cmd.AddValue("numProducers", "How many producer nodes are created", nProd);
   cmd.AddValue("consumerTopo", "How consumers are selected from topology", cTopo);
   cmd.AddValue("numConsumers", "How many consumer nodes are created", nCons);
+  cmd.AddValue("cacheSize", "the size of each cache, for hashing", cSize);
   cmd.AddValue("numFiles", "How many files to request", nFiles);
   cmd.AddValue("numSegments", "How many Segments per file", nSeg);
   cmd.AddValue("cacheNodeConfig", "config file name for cache nodes", cConfig);
@@ -503,14 +586,26 @@ Packet::EnableChecking();
   //Config::SetDefault ("ns3::DropTailQueue::MaxPackets", StringValue ("1000000")); 
   Config::SetDefault ("ns3::PointToPointChannel::Delay", StringValue ("1ms"));
       createTopology(input, format, reqRate);
-      create1Producers(3);
+      //create1Producers(3);
+    prepNodes();
+    createProducers(nProd);
+    createConsumers(nCons);
+    createCaches(nCaches);
 
+    createFateNodes(cConfig, nConfig);
+    createAllConsumers();
+
+  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
     CreateDnsAssociation();
+    //cache hashing
+    CreateDnsHashAssociation(caches,cSize);
+
     dns = GetDns();
-    CreateDestAssociation(producers);
+    //CreateDestAssociation(producers);
+    CreateDestAssociation(NodeContainer::GetGlobal());
     //how to do caching
-    if (cConfig.size()) {
+    /*if (cConfig.size()) {
       mod = new UtilityExternalModule;
       timer = new GlobalModuleTimerNs3; //change to ns3 timer
       stats = new CustomStats;
@@ -524,14 +619,12 @@ Packet::EnableChecking();
       global->dnsEntry = (void *) (dns);
 
         //createEdgeCacheNodes();
-    }
+    }*/
 
     serverApps.Start (Seconds (1.0));
     serverApps.Stop (Seconds (totTime+1.0));  //set as param FIXME
 
-createAllCacheNodes();
-    createFateNodes(cConfig, nConfig);
-    createConsumers();
+//createAllCacheNodes();
     clientApps.Start (Seconds (2.0));
     clientApps.Stop (Seconds (totTime+.5));
 
