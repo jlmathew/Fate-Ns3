@@ -40,6 +40,7 @@
 #include "ns3/node.h"
 #include "ns3/ipv4-nix-vector-helper.h"
 //#include  "ns3/fate-global.h"
+#include "ns3/RangeData.h"
 
 namespace ns3 {
 
@@ -50,8 +51,12 @@ void CreateDestAssociation(const NodeContainer &producers);
 void CreateDnsAssociation();
  std::map<Ipv4Address, std::string> * GetDns();
 
+ std::map<std::string, RangeData<unsigned int> > GetNodeToHash();
+ 
  std::string
 GetProdNodeName(const std::string &bestMatchName);
+ 
+void CreateDnsHashAssociation(const NodeContainer &cacheNodes, unsigned int perCacheSetting);
 
 ipPort_t 
 GetProdNodeIpv4(const std::string &bestMatchName);
@@ -59,6 +64,15 @@ GetProdNodeIpv4(const std::string &bestMatchName);
 ipPort_t 
 GeDnsNameFromIpv4(const std::string &dnsName);
  
+RangeData<unsigned int> 
+GetCacheHashRange(std::string name);
+
+std::string 
+GetNameFromRange(unsigned int rng);
+
+Ipv4Address
+GetIpFromRange(unsigned int rng);
+
 #define ICN_STAT_ROUTES 1
 
 } // namespace ns3

@@ -43,6 +43,7 @@
 #include "ns3/fateIpv4-interface.h"
 #include "ns3/string.h"
 #include "udp-fate-file-zipf-client.h"
+
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("UdpFateFileZipfClientApplication");
@@ -123,6 +124,10 @@ UdpFateFileZipfClient::GetTypeId (void)
                                      BooleanValue (false),
                                      MakeBooleanAccessor (&UdpFateFileZipfClient::m_uniqDataNames),
                                      MakeBooleanChecker())
+                      .AddAttribute ("sendToOffPathCache", "Send packet to an intermediate destination",
+                                     BooleanValue (false),
+                                     MakeBooleanAccessor (&UdpFateFileZipfClient::m_offPathCache),
+                                     MakeBooleanChecker())
 
                       ;
   return tid;
@@ -198,6 +203,10 @@ UdpFateFileZipfClient::StartApplication (void)
   NS_LOG_FUNCTION (this);
   TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
   count = 0;
+
+//create m_cacheSocket to cache Nodes
+
+  
 #ifdef ICN_STAT_ROUTES
   if (!m_nStaticDest)
   {
@@ -391,7 +400,14 @@ UdpFateFileZipfClient::SendBody ()
   if(m_timestamp) {
     payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
   }
-
+  //new intermediate destination
+  if (m_offPathCache)
+  {
+          payload.SetPrintedNamedAttribute("DstChain", GetIpFromRange(3));
+          payload.SetPrintedNamedAttribute("ReturnChain", "");
+	  //payload.SetNameAttribute("DstChain", GetIpFromRange(0));
+	  //payload.SetNameAttribute("ReturnChain", "");
+  }
   payload.SetUnsignedNamedAttribute("PktId", count++);
 
   payload.SetName(m_pktName);
@@ -414,14 +430,17 @@ UdpFateFileZipfClient::SendBody ()
   m_statTotalTxSize+=m_size;
 #ifdef ICN_STAT_ROUTES
   if (m_minMatchType=="location") {
+    //Reroute to cache, if necessary
     m_vectSocket[0]->Send(p);
     NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to server." );
   } else {
+    //Reroute to cache, if necessary
     m_vectSocket[m_fileCnt-1]->Send(p);
     NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s client sent " << m_size << " bytes to server:" << m_fileCnt );
   }
 
 #else
+  //Reroute to cache, if necessary
   m_socket->Send (p);
 
   if (Ipv4Address::IsMatchingType (m_peerAddress))

@@ -19,14 +19,19 @@
  */
 
 #include "global-fate.h"
+#include "ns3/RangeData.h"
 
 namespace ns3 {
 
 static std::map<std::string, std::string> nodeNameToProd;
 static std::map<std::string, ipPort_t > nodeNameToIPort;
+static std::map<std::string, ipPort_t > matchNameToIPort;
 //static std::multimap<std::string, Ipv4Address > dnsNameToIP;
 static std::map<Ipv4Address, std::string > dnsIpToName;
+static std::map<std::string, Ipv4Address > dnsNameToIp;
 
+static std::map<std::string, RangeData<unsigned int> > cacheHashToName;
+static unsigned int cacheHashModulus=0;
 //std::map<ns3::Ipv4Address, std::string > dnsIpToName;
 void CreateDnsAssociation()
 {
@@ -48,12 +53,76 @@ std::cout << "node" << i << " {";
      name.append(std::to_string(i));
 std::cout << addr << ",";
         dnsIpToName.insert(std::pair<Ipv4Address, std::string>(addr,name));
+	dnsNameToIp.insert(std::pair<std::string, Ipv4Address>(name,addr));
         //dnsNameToIP.insert(std::pair<std::string, Ipv4Address>(name,addr));
-
      }
 std::cout << "}\n";
     }
 }
+
+
+
+void CreateDnsHashAssociation(const NodeContainer &cacheNodes, unsigned int perCacheSetting)
+{
+   cacheHashModulus = cacheNodes.GetN()*perCacheSetting;
+   std::cout << "Cache Nodes Hash Range:\n";
+   for(unsigned int i=0; i<cacheNodes.GetN(); i++) {
+     std::string name;
+     name.append(std::to_string(cacheNodes.Get(i)->GetId()));
+      ::RangeData<unsigned int> rng(i*perCacheSetting, (i+1)*perCacheSetting-1);  
+      cacheHashToName[name]=rng;  
+	std::cout << "\tNode:" << name << " , hash:" << rng << "\n";
+   }
+   std::cout << "}\n";
+
+
+}
+
+RangeData<unsigned int> 
+GetCacheHashRange(std::string name)
+{
+    auto it=cacheHashToName.find(name);
+    if (it == cacheHashToName.end())
+	    assert(0);
+    return it->second;
+
+}
+
+std::string 
+GetNameFromRange(unsigned int rngOrig)
+{
+	std::string retName;
+	unsigned int rng = rngOrig % cacheHashModulus;
+  for(auto it=cacheHashToName.begin(); it!=cacheHashToName.end(); it++)
+  {
+     if (it->second.IsInRange(rng)) {
+	retName=it->first; break;
+		     } 
+  }
+  retName="Node"+retName;
+	std::cout << "RngOrig:" << rngOrig << " , % " << cacheHashModulus << " = " << rng << " going to " << retName << "\n";
+  return retName; 
+}
+
+Ipv4Address
+GetIpFromRange(unsigned int rng)
+{
+   Ipv4Address retIp("0.0.0.0");
+       //Ipv4Address loopback("127.0.0.1");
+   std::string matchStr=GetNameFromRange(rng);
+   if (!matchStr.empty())
+   {
+      std::map<std::string,std::pair<Ipv4Address, uint16_t>  >::const_iterator cit = nodeNameToIPort.find(matchStr);
+  std::cout << "first node is " << nodeNameToIPort.begin()->first << " looking for " << matchStr << "\n";
+      if (cit != nodeNameToIPort.end())
+      {
+         retIp=cit->second.first;
+      }
+   }
+   std::cout << "   IP:" << retIp << " from hash value of " << rng << "\n";
+   return retIp;
+}
+
 std::map<Ipv4Address, std::string> *
  GetDns()
 {
@@ -94,7 +163,8 @@ void CreateDestAssociation(const NodeContainer &producers)
      //get node name
      Ptr<Node> node = producers.Get(i);
      bool notFound=true;
-     std::string name;
+     std::string name="Node";
+     name += std::to_string(node->GetId());
      uint16_t port=0;
      //get node IP
      Ptr<Ipv4> ipv4 = node -> GetObject<Ipv4>(); 
@@ -105,39 +175,51 @@ void CreateDestAssociation(const NodeContainer &producers)
      {
        
        Ptr<UdpFateServer> app = DynamicCast<UdpFateServer>(node->GetApplication(j));
-       
+      
+       std::string match; 
        if (0 != app)  //fate server app 
        {
          notFound = false;
-         app->GetMatchNameAndPort(name, port);
-         //std::cout << "node:" << i << "(" << j << ") ipv4 producer:" << name << "= " << addri << "," << port <<"\n";
+         app->GetMatchNameAndPort(match, port);
+         std::cout << "CDA node:" << i << "(" << j << ") ipv4 producer:" << name << "= " << addri << "," << port <<"\n";
          ipPort_t info= std::make_pair(addri, port);
          nodeNameToIPort.insert(std::make_pair(name,info));
+         matchNameToIPort.insert(std::make_pair(match,info));
        } else { //check video servers
         Ptr<UdpFateVideoServer> app = DynamicCast<UdpFateVideoServer>(node->GetApplication(j));
 	if (0 != app) {
          notFound = false;
-         app->GetMatchNameAndPort(name, port);
+         std::string match; 
+         app->GetMatchNameAndPort(match, port);
          //std::cout << "node:" << i << "(" << j << ") ipv4 producer:" << name << "= " << addri << "," << port <<"\n";
          ipPort_t info= std::make_pair(addri, port);
          nodeNameToIPort.insert(std::make_pair(name,info));
+         matchNameToIPort.insert(std::make_pair(match,info));
         } else {
         Ptr<UdpFateFileZipfServer> app = DynamicCast<UdpFateFileZipfServer>(node->GetApplication(j));
 	if (0 != app) {
          notFound = false;
-         app->GetMatchNameAndPort(name, port);
+         std::string match; 
+         app->GetMatchNameAndPort(match, port);
          //std::cout << "node:" << i << "(" << j << ") ipv4 producer:" << name << "= " << addri << "," << port <<"\n";
          ipPort_t info= std::make_pair(addri, port);
          nodeNameToIPort.insert(std::make_pair(name,info));
+         matchNameToIPort.insert(std::make_pair(match,info));
         } 
 
 	}
 
        }
      }
-     if (notFound)
-       assert(0); //didnt find information
-
+     if (notFound) { //non producers
+	 auto ci2=dnsNameToIp.find(name);
+         if (ci2==dnsNameToIp.end()) { assert(0); }
+         ipPort_t info= std::make_pair(ci2->second, 0); //no port
+         nodeNameToIPort.insert(std::make_pair(name,info));
+	 std::cout << name << " maps (non producer) maps to " << ci2->second << "\n";
+         notFound=false;
+       //assert(0); //didnt find information
+     }
     } 
     //int size=nodeNameToIPort.size();
     //std:://cout << "there are " << size << " entries\n";
@@ -158,11 +240,12 @@ GetProdNodeName(const std::string &bestMatchName)
 ipPort_t 
 GetProdNodeIpv4(const std::string &bestMatchName)
 {
-  std::map<std::string,std::pair<Ipv4Address, uint16_t>  >::const_iterator cit = nodeNameToIPort.find(bestMatchName);
+         //matchNameToIPort.insert(std::make_pair(match,info));
+  std::map<std::string,std::pair<Ipv4Address, uint16_t>  >::const_iterator cit = matchNameToIPort.find(bestMatchName);
   //debug
-  auto debug = nodeNameToIPort.begin();
-    std::cout << "access there are " << debug->first << ":" << debug->second.first << " entries\n";
-     if (cit == nodeNameToIPort.end()) { //not found
+  auto debug = matchNameToIPort.begin();
+    std::cout << "access match there are " << debug->first << ":" << debug->second.first << " entries\n";
+     if (cit == matchNameToIPort.end()) { //not found
      assert(0);
    } 
    return cit->second;

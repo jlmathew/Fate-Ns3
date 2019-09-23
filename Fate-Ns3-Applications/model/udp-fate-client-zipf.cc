@@ -35,6 +35,7 @@
 #include <iostream>
 #include <ostream>
 #include <string>
+#include <functional>
 #include "ns3/PacketTypeBase.h"
 #include "ns3/ipv4-address.h"
 #include "ns3/ipv4-header.h"
@@ -115,6 +116,10 @@ UdpFateZipfClient::GetTypeId (void)
                    StringValue(""),
                    MakeStringAccessor(&UdpFateZipfClient::m_xmlpayload), 
                    MakeStringChecker())
+     .AddAttribute ("sendToOffPathCache", "Send packet to an intermediate destination",
+                   BooleanValue (false),
+                   MakeBooleanAccessor (&UdpFateZipfClient::m_offPathCache),
+                   MakeBooleanChecker())
   ;
   return tid;
 }
@@ -388,6 +393,20 @@ UdpFateZipfClient::Send (void)
   }
   m_payload.SetName(m_pktName);
   m_payload.SetPacketPurpose(PktType::INTERESTPKT);
+  if (m_offPathCache)
+  {
+	  uint32_t hashValue = std::hash<std::string>{}(m_matchName);
+	  std::stringstream dc;
+	  dc << GetIpFromRange(hashValue);
+	  dc << ";";
+            ipPort_t info = GetProdNodeIpv4(m_matchName);
+            Ipv4Address ipv4(info.first);
+	    dc<<ipv4<<";";
+          m_payload.SetPrintedNamedAttribute("DstChain", dc.str());
+          m_payload.SetPrintedNamedAttribute("ReturnChain", "");
+std::cout << "name:" << m_matchName << " hashes to hashValue(" << hashValue << ")  with a returnchain of " << dc.str() << "\n";
+  }
+
  std::cout << "tx:" << m_payload << "\n"; 
    std::vector<uint8_t> fateData;
    m_payload.ClearTempData();

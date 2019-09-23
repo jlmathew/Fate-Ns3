@@ -208,7 +208,8 @@ UdpFateServer::HandleRead (Ptr<Socket> socket)
       if (!m_setNameMatch.empty()) {
          IcnName < std::string> matchName, pktName;
          matchName.SetFullName(m_setNameMatch);
-         pktName = fatePkt.GetName();
+         	pktName.SetFullName(fatePkt.GetAcclName());
+         //pktName = fatePkt.GetName();
          match = pktName.PartialAttributeMatch(matchName);
       }
       //if true, it is a data pkt
@@ -243,7 +244,7 @@ UdpFateServer::HandleRead (Ptr<Socket> socket)
       std::string retChain;
       bool chainRetResult = fatePkt.GetNamedAttribute("ReturnChain", retChain);
 std::string dstAddr;
-      fatePkt.GetPrintedNamedAttribute("Ipv4Dst", dstAddr);
+      fatePkt.GetPrintedNamedAttribute("Ipv4Dst", dstAddr, true);
       if (chainRetResult)
       {
 	      //TODO FIXME add option to go by node name (via dns lookup) or IP
@@ -267,7 +268,7 @@ Ipv4Address ipDest(dstAddr.c_str());
 uint16_t port =  InetSocketAddress::ConvertFrom (from).GetPort ();
 from = InetSocketAddress(ipDest,port);
 //change packet dst IP
-fatePkt.SetNamedAttribute("Ipv4Dst",dstAddr  );
+fatePkt.SetNamedAttribute("Ipv4Dst",dstAddr, true  );
 
       }
       Ptr< Packet> returnPkt=0;

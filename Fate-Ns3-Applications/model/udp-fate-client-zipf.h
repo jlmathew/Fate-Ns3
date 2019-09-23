@@ -152,6 +152,7 @@ private:
   std::string m_minMatchType;
   std::string m_xmlpayload;
   std::string m_matchName;
+  bool m_offPathCache;
 
 };
 

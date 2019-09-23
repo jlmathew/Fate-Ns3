@@ -120,6 +120,7 @@ private:
   uint32_t m_sent; //!< Counter for sent packets
   Ptr<Socket> m_socket; //!< Socket
   std::vector<Ptr<Socket> > m_vectSocket;
+  std::vector<Ptr<Socket> > m_cacheSocket;
   Address m_peerAddress; //!< Remote peer address
   uint16_t m_peerPort; //!< Remote peer port
   EventId m_sendEvent; //!< Event to send the next packet
@@ -154,6 +155,7 @@ private:
   std::string m_matchName;
   static int count;
   bool m_uniqDataNames;
+  bool m_offPathCache;
   uint64_t m_statNumPktHdrTx;
   uint64_t m_statNumPktHdrRx;
   uint64_t m_statNumBytesTx;
