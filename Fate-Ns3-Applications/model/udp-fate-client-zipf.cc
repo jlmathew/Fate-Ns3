@@ -120,6 +120,10 @@ UdpFateZipfClient::GetTypeId (void)
                    BooleanValue (false),
                    MakeBooleanAccessor (&UdpFateZipfClient::m_offPathCache),
                    MakeBooleanChecker())
+     .AddAttribute ("hashOnLocation", "Hash on location (e.g. test1,test2) or hash on request name.  Default is true.",
+                   BooleanValue (true),
+                   MakeBooleanAccessor (&UdpFateZipfClient::m_hashOnLocation),
+                   MakeBooleanChecker())
   ;
   return tid;
 }
@@ -395,7 +399,13 @@ UdpFateZipfClient::Send (void)
   m_payload.SetPacketPurpose(PktType::INTERESTPKT);
   if (m_offPathCache)
   {
-	  uint32_t hashValue = std::hash<std::string>{}(m_matchName);
+	  //jlm TODO FIXME add binary option for 'how' to hash
+	  uint32_t hashValue=0;
+	  if (m_hashOnLocation) {
+	    hashValue = std::hash<std::string>{}(m_matchName); //per content type
+	  } else {
+	    hashValue = std::hash<std::string>{}(m_payload.GetAcclName());  //per hash
+	  }
 	  std::stringstream dc;
 	  dc << GetIpFromRange(hashValue);
 	  dc << ";";
@@ -404,7 +414,7 @@ UdpFateZipfClient::Send (void)
 	    dc<<ipv4<<";";
           m_payload.SetPrintedNamedAttribute("DstChain", dc.str());
           m_payload.SetPrintedNamedAttribute("ReturnChain", "");
-std::cout << "name:" << m_matchName << " hashes to hashValue(" << hashValue << ")  with a returnchain of " << dc.str() << "\n";
+std::cout << "name:" << m_payload.GetAcclName() << " matching " << m_matchName << " hashes to hashValue(" << hashValue << ")  with a returnchain of " << dc.str() << "\n";
   }
 
  std::cout << "tx:" << m_payload << "\n"; 
