@@ -1,0 +1,27 @@
+<NodeModule>
+	<UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="10"  ContentTypes="Icn" > <!--File" or "Icn"-->
+		<Utility name="UTILITYBLOCK"  order="1" >
+			<Utility name="MIN" >
+		<Utility name="LRU" >
+			<Normalize normalizeName="NormalRanked" value_type="ceiling" /> <!--ceiling, floor, fullRange -->
+		</Utility>
+		<Utility name="HASH_MODULUS" matchLow="1" matchHigh="1" modulus="3" />
+	</Utility>
+    </Utility>
+  </UtilityModule>
+
+  <UtilityModule moduleName="SecurityBasicManager" order="1" >
+    <Utility name="UTILITYBLOCK" proxyName="SecurityBlock" order="1">
+        <Utility name="COUNT" missing_count_value="60" matching_lower_bound="0" matching_upper_bound="1" count_condition="decrement" match_criteria="LeftRightInclusive" attribName="TtlHop" />
+    </Utility>
+  </UtilityModule>
+  
+  <UtilityModule moduleName="ForwardNs3Ipv4ManagerF2c" order="3" associatedCacheStore="CacheStore" >
+
+    <Utility name="UTILITYBLOCK" order="1">
+        <Utility name="NAMECHAIN" appendNodeName="false" m_defaultAttribute="Path:" nodeNamePartition=" ; " appendIfnExist="true" appendInFront="false"  nodeNameUnique="false"/>
+    </Utility>
+  </UtilityModule>
+  <Store  storeName="CacheBasicStore" name="CacheStore" size="16" storageMethod="MemMap"/>
+</NodeModule>
+
