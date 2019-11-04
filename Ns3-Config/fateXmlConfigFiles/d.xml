@@ -1,9 +1,9 @@
 <NodeModule>
-	<UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="300"  ContentTypes="File" > <!--File" or "Icn"-->
+	<UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="250"  ContentTypes="File" > <!--File" or "Icn"-->
     <Utility name="UTILITYBLOCK"  order="1" >
-	<Utility name="LRU" >
-		<Normalize normalizeName="NormalRanked" value_type="fullRange" />
-	</Utility>
+	<!-- REGEX_MATCH -->
+	<Utility name="REGEX_MATCH"   matchFieldName="help" regexPattern="(SOS)(.*)" >
+        </Utility>
     </Utility>
   </UtilityModule>
 
