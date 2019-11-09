@@ -1,7 +1,7 @@
 <NodeModule>
-  <UtilityModule moduleName="SecurityBasicManager" order="1" >
+  <UtilityModule moduleName="SecurityBasicManager" order="1"  >
     <Utility name="UTILITYBLOCK" proxyName="SecurityBlock" order="1">
-        <Utility name="COUNT" missing_count_value="0" matching_lower_bound="0" matching_upper_bound="1" count_condition="increment" match_criteria="LeftRightInclusive" attribName="Distance" />
+        <Utility name="COUNT" missing_count_value="0" matching_lower_bound="0" matching_upper_bound="1" count_condition="increment" match_criteria="LeftRightInclusive" attribName="Distance"  updateEntryPktType="8"  />
     </Utility>
   </UtilityModule>
   

@@ -85,7 +85,7 @@ UdpFateFileZipfClient::GetTypeId (void)
                                      UintegerValue (10),
                                      MakeUintegerAccessor (&UdpFateFileZipfClient::m_maxFiles),
                                      MakeUintegerChecker<uint32_t> ())
-		      .AddAttribute ("Qos", "QoS for packet (use 0 for none)",
+		      .AddAttribute ("QoS", "QoS for packet (use 0 for none)",
                                      UintegerValue (0),
                                      MakeUintegerAccessor (&UdpFateFileZipfClient::m_qos),
                                      MakeUintegerChecker<uint32_t> ())
@@ -512,9 +512,15 @@ UdpFateFileZipfClient::Send (void)
   }
   if (m_useHeader)
   payload.SetUnsignedNamedAttribute("Header", 1);
-  if (m_qos)
-	  payload.SetUnsignedNamedAttribute("QOS", m_qos);
-  
+  if (m_qos && (m_fileCnt == m_qos)) {
+	  payload.SetUnsignedNamedAttribute("QOS", (uint64_t) m_qos); 
+
+  }
+   if (m_qos && (m_fileCnt == m_qos+5)) {
+	  payload.SetNamedAttribute("help", "SOS-HAAALP"); 
+
+  }
+ 
   payload.SetUnsignedNamedAttribute("PktId", count++);
   ++m_statNumPktHdrTx;
 

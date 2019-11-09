@@ -7,16 +7,16 @@
 		</Utility>
 		<!-- COUNT  QoS (count_condition=none)(matching_lower_bound=A matching_upper_bound=B); --> 
 		<Utility name="MAX" >
-			<Utility name="COUNT" count_condition="none"  attribName="Distance" matching_lower_bound="1" matching_upper_bound="1" match_criteria="LeftRightInclusive" />
+			<Utility name="COUNT" count_condition="none"  attribName="QOS" matching_lower_bound="1" matching_upper_bound="1" match_criteria="LeftRightInclusive" />
         		<Utility name="MULT">
-				<Utility name="COUNT" count_condition="none"  attribName="Distance" matching_lower_bound="2" matching_upper_bound="2" match_criteria="LeftRightInclusive" />
+				<Utility name="COUNT" count_condition="none"  attribName="QOS" matching_lower_bound="2" matching_upper_bound="2" match_criteria="LeftRightInclusive" />
 				<Utility name="CONST" defaultValue="0.8" />
 			</Utility>
         		<Utility name="MULT">
-				<Utility name="COUNT" count_condition="none"  attribName="Distance" matching_lower_bound="3" matching_upper_bound="3" match_criteria="LeftRightInclusive" />
+				<Utility name="COUNT" count_condition="none"  attribName="QOS" matching_lower_bound="3" matching_upper_bound="3" match_criteria="LeftRightInclusive" />
 				<Utility name="CONST" defaultValue="0.6" />
 			</Utility>
-			<Utility name="CONST" defaultValue="0.5" />
+			<Utility name="CONST" defaultValue="0.4" />
 		</Utility>
 		<!-- Size RawEval size  Normalize-->
 	<Utility name="MAX" >
@@ -34,10 +34,24 @@
           </Utility>
           <Utility name="PLE" />
 	</Utility>
+
 		<!-- Distance RawEval   Normalize-->
+	<Utility name="MAX" >
+	  <Utility name="SUM" >
+	    <Utility name="MULT" >
 		<Utility name="RawEval"   attribName="Distance" >
-			<Normalize normalizeName="NormalRanked" value_type="fullRange"  invertValue="false"/>
+			<Normalize normalizeName="GeometricMatch" biasLowVal="true"  invertValue="false" divisor="10" />
 		</Utility>
+                <Utility name="CONST" defaultValue="0.98" />
+	    </Utility>
+            <Utility name="MULT">
+              <Utility name="CONST" defaultValue="0.02" />
+              <Utility name="RND" randomType="alwaysRnd"  />
+            </Utility>
+          </Utility>
+          <Utility name="PLE" />
+	</Utility>
+
 		<!-- REGEX_MATCH -->
 		<Utility name="REGEX_MATCH"   matchFieldName="help" regexPattern="(SOS)(.*)" >
         </Utility>
