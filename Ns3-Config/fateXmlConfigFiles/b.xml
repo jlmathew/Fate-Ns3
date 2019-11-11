@@ -1,37 +1,23 @@
+<?xml version="1.0"?>
 <NodeModule>
-	<UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="250"  ContentTypes="File" > <!--File" or "Icn"-->
-    <Utility name="UTILITYBLOCK"  order="1" >
-	<Utility name="MAX" >
-	  <Utility name="SUM" >
-	    <Utility name="MULT" >
-		<Utility name="RawEval"   attribName="TotalSize"  >
-			<Normalize normalizeName="GeometricMatch" biasLowVal="false"  invertValue="false" divisor="10"/>
-		</Utility>
-                <Utility name="CONST" defaultValue="0.98" />
-	    </Utility>
-            <Utility name="MULT">
-              <Utility name="CONST" defaultValue="0.02" />
-              <Utility name="RND" randomType="alwaysRnd"  />
-            </Utility>
-          </Utility>
-          <Utility name="PLE" />
-	</Utility>
-    </Utility>
-  </UtilityModule>
-
-
-  <UtilityModule moduleName="SecurityBasicManager" order="1" >
-    <Utility name="UTILITYBLOCK" proxyName="SecurityBlock" order="1">
-        <Utility name="COUNT" missing_count_value="0" matching_lower_bound="0" matching_upper_bound="1" count_condition="increment" match_criteria="LeftRightInclusive" attribName="Distance" />
-    </Utility>
-  </UtilityModule>
-  
-  <UtilityModule moduleName="ForwardNs3Ipv4Manager3" order="3" associatedCacheStore="CacheStore" >
-
+  <UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="250" ContentTypes="File">
+    <!--File" or "Icn"-->
     <Utility name="UTILITYBLOCK" order="1">
-        <Utility name="NAMECHAIN" appendNodeName="true" m_defaultAttribute="Path:" nodeNamePartition=" ; " appendIfnExist="true" appendInFront="false"  nodeNameUnique="false"/>
+           <Utility name="LRU">
+              <Normalize normalizeName="NormalRanked" value_type="fullRange"/>
+            </Utility>
+
     </Utility>
   </UtilityModule>
-  <Store  storeName="CacheBasicStore" name="CacheStore" size="250" storageMethod="MemMap"/>
+  <UtilityModule moduleName="SecurityBasicManager" order="1">
+    <Utility name="UTILITYBLOCK" proxyName="SecurityBlock" order="1">
+      <Utility name="COUNT" missing_count_value="0" matching_lower_bound="0" matching_upper_bound="1" count_condition="increment" match_criteria="LeftRightInclusive" attribName="Distance"/>
+    </Utility>
+  </UtilityModule>
+  <UtilityModule moduleName="ForwardNs3Ipv4Manager3" order="3" associatedCacheStore="CacheStore">
+    <Utility name="UTILITYBLOCK" order="1">
+      <Utility name="NAMECHAIN" appendNodeName="true" m_defaultAttribute="Path:" nodeNamePartition=" ; " appendIfnExist="true" appendInFront="false" nodeNameUnique="false"/>
+    </Utility>
+  </UtilityModule>
+  <Store storeName="CacheBasicStore" name="CacheStore" size="250" storageMethod="MemMap"/>
 </NodeModule>
-

@@ -79,6 +79,7 @@ private:
   Address m_local; //!< local multicast address
   //std::list< std::pair< std::string, std::string> > m_partMatch;
   std::string m_setNameMatch;
+  std::string m_returnPath;
 
   uint64_t m_statNumPktsTx; //
   uint64_t m_statNumIntPktRx; //

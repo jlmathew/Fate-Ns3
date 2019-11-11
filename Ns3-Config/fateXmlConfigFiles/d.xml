@@ -1,24 +1,22 @@
+<?xml version="1.0"?>
 <NodeModule>
-	<UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="250"  ContentTypes="File" > <!--File" or "Icn"-->
-    <Utility name="UTILITYBLOCK"  order="1" >
-	<!-- REGEX_MATCH -->
-	<Utility name="REGEX_MATCH"   matchFieldName="help" regexPattern="(SOS)(.*)" >
+  <UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="250" ContentTypes="File">
+    <!--File" or "Icn"-->
+    <Utility name="UTILITYBLOCK" order="1">
+      <!-- REGEX_MATCH -->
+      <Utility name="REGEX_MATCH" matchFieldName="help" regexPattern="(SOS)(.*)">
         </Utility>
     </Utility>
   </UtilityModule>
-
-  <UtilityModule moduleName="SecurityBasicManager" order="1" >
+  <UtilityModule moduleName="SecurityBasicManager" order="1">
     <Utility name="UTILITYBLOCK" proxyName="SecurityBlock" order="1">
-        <Utility name="COUNT" missing_count_value="0" matching_lower_bound="0" matching_upper_bound="1" count_condition="increment" match_criteria="LeftRightInclusive" attribName="Distance" />
+      <Utility name="COUNT" missing_count_value="0" matching_lower_bound="0" matching_upper_bound="1" count_condition="increment" match_criteria="LeftRightInclusive" attribName="Distance"/>
     </Utility>
   </UtilityModule>
-  
-  <UtilityModule moduleName="ForwardNs3Ipv4Manager3" order="3" associatedCacheStore="CacheStore" >
-
+  <UtilityModule moduleName="ForwardNs3Ipv4Manager3" order="3" associatedCacheStore="CacheStore">
     <Utility name="UTILITYBLOCK" order="1">
-        <Utility name="NAMECHAIN" appendNodeName="true" m_defaultAttribute="Path:" nodeNamePartition=" ; " appendIfnExist="true" appendInFront="false"  nodeNameUnique="false"/>
+      <Utility name="NAMECHAIN" appendNodeName="true" m_defaultAttribute="Path:" nodeNamePartition=" ; " appendIfnExist="true" appendInFront="false" nodeNameUnique="false"/>
     </Utility>
   </UtilityModule>
-  <Store  storeName="CacheBasicStore" name="CacheStore" size="250" storageMethod="MemMap"/>
+  <Store storeName="CacheBasicStore" name="CacheStore" size="250" storageMethod="MemMap"/>
 </NodeModule>
-

@@ -61,6 +61,11 @@ UdpFateServer::GetTypeId (void)
                    "Exact Packet Name with minimal matching attributes",
                    StringValue (""),
                    MakeStringAccessor (&UdpFateServer::m_setNameMatch),
+                   MakeStringChecker ())  
+    .AddAttribute ("ReturnPath", 
+                   "Exact Packet Name with minimal matching attributes",
+                   StringValue (""),
+                   MakeStringAccessor (&UdpFateServer::m_returnPath),
                    MakeStringChecker ())  ;
   return tid;
 }
@@ -243,6 +248,18 @@ UdpFateServer::HandleRead (Ptr<Socket> socket)
       fatePkt.SetUnsignedNamedAttribute("ServerHitNodeName", GetNode()->GetId(), false);
       std::string retChain;
       bool chainRetResult = fatePkt.GetNamedAttribute("ReturnChain", retChain);
+
+if (!m_returnPath.empty())
+{
+    //std::string srcAddr;
+   //   fatePkt.GetPrintedNamedAttribute("Ipv4Src", srcAddr, true);
+std::stringstream a;
+a << InetSocketAddress::ConvertFrom (from).GetIpv4 ();
+//this addr (to be removed), intermediate, actual dst addr
+    retChain=a.str()+";"+m_returnPath+a.str()+";";
+    //std::string ret=m_returnPath+a.str()+";";
+}
+
 std::string dstAddr;
       fatePkt.GetPrintedNamedAttribute("Ipv4Dst", dstAddr, true);
       if (chainRetResult)
@@ -269,7 +286,6 @@ uint16_t port =  InetSocketAddress::ConvertFrom (from).GetPort ();
 from = InetSocketAddress(ipDest,port);
 //change packet dst IP
 fatePkt.SetNamedAttribute("Ipv4Dst",dstAddr, true  );
-
       }
       Ptr< Packet> returnPkt=0;
       FateIpv4Interface::FatePktToIpv4(fatePkt, returnPkt);
