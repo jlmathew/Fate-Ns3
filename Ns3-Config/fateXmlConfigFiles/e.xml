@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<NodeModule>
+  <UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="250" ContentTypes="File">
+    <!--File" or "Icn"-->
+    <Utility name="UTILITYBLOCK" order="1">
+      <Utility name="MAX">
+        <Utility name="SUM">
+          <Utility name="MULT">
+            <Utility name="RawEval" attribName="Distance" updateEntryPktType="8">
+              <Normalize normalizeName="GeometricMatch" biasLowVal="false" invertValue="true" divisor="1"/>
+            </Utility>
+            <Utility name="CONST" defaultValue="0.9998"/>
+          </Utility>
+          <Utility name="MULT">
+            <Utility name="CONST" defaultValue="0.0002"/>
+            <Utility name="RND" randomType="alwaysRnd"/>
+          </Utility>
+        </Utility>
+        <Utility name="PLE"/>
+      </Utility>
+    </Utility>
+  </UtilityModule>
+  <UtilityModule moduleName="SecurityBasicManager" order="1">
+    <Utility name="UTILITYBLOCK" proxyName="SecurityBlock" order="1">
+      <Utility name="COUNT" missing_count_value="1000" matching_lower_bound="999" matching_upper_bound="999" count_condition="increment" match_criteria="LeftRightInclusive" attribName="Distance" updateEntryPktType="8"/>
+    </Utility>
+  </UtilityModule>
+  <UtilityModule moduleName="ForwardNs3Ipv4Manager3" order="3" associatedCacheStore="CacheStore">
+    <Utility name="UTILITYBLOCK" order="1">
+      <Utility name="NAMECHAIN" appendNodeName="true" m_defaultAttribute="Path:" nodeNamePartition=" ; " appendIfnExist="true" appendInFront="false" nodeNameUnique="false"/>
+    </Utility>
+  </UtilityModule>
+  <Store storeName="CacheBasicStore" name="CacheStore" size="250" storageMethod="MemMap"/>
+</NodeModule>
