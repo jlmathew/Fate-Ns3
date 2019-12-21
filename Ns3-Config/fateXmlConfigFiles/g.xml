@@ -1,22 +1,15 @@
 <?xml version="1.0"?>
 <NodeModule>
-  <UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="300" ContentTypes="File">
+  <UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="370" ContentTypes="File">
     <!--File" or "Icn"-->
     <Utility name="UTILITYBLOCK" order="1">
       <Utility name="MAX">
-        <Utility name="SUM">
-          <Utility name="MULT">
-            <Utility name="RawEval" attribName="TotalSize">
-              <Normalize normalizeName="GeometricMatch" biasLowVal="false" invertValue="false" divisor="10"/>
-            </Utility>
-            <Utility name="LRU">
-              <Normalize normalizeName="NormalRanked" value_type="fullRange"/>
-            </Utility>
-            <Utility name="CONST" defaultValue="0.98"/>
+        <Utility name="MULT">
+          <Utility name="RawEval" attribName="TotalSize">
+            <Normalize normalizeName="GeometricMatch" biasLowVal="false" invertValue="false" divisor="10"/>
           </Utility>
-          <Utility name="MULT">
-            <Utility name="CONST" defaultValue="0.02"/>
-            <Utility name="RND" randomType="alwaysRnd"/>
+          <Utility name="LRU">
+            <Normalize normalizeName="NormalRanked" value_type="ceiling"/>
           </Utility>
         </Utility>
         <Utility name="SUM">
@@ -33,7 +26,6 @@
               <Utility name="COUNT" count_condition="none" attribName="QOS" matching_lower_bound="3" matching_upper_bound="3" match_criteria="LeftRightInclusive"/>
               <Utility name="CONST" defaultValue="0.58"/>
             </Utility>
-            <Utility name="CONST" defaultValue="0.38"/>
           </Utility>
           <Utility name="MULT">
             <Utility name="CONST" defaultValue="0.02"/>
@@ -54,5 +46,5 @@
       <Utility name="NAMECHAIN" appendNodeName="true" m_defaultAttribute="Path:" nodeNamePartition=" ; " appendIfnExist="true" appendInFront="false" nodeNameUnique="false"/>
     </Utility>
   </UtilityModule>
-  <Store storeName="CacheBasicStore" name="CacheStore" size="250" storageMethod="MemMap"/>
+  <Store storeName="CacheBasicStore" name="CacheStore" size="370" storageMethod="MemMap"/>
 </NodeModule>

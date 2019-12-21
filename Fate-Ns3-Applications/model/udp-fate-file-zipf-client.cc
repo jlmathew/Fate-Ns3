@@ -516,7 +516,7 @@ UdpFateFileZipfClient::Send (void)
 	  payload.SetUnsignedNamedAttribute("QOS", (uint64_t) m_qos); 
 
   }
-   if (m_qos && (m_fileCnt == m_qos+5)) {
+   if (m_qos && (m_fileCnt == 7-m_qos)) {
 	  payload.SetNamedAttribute("help", "SOS-HAAALP"); 
 
   }
