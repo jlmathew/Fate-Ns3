@@ -154,6 +154,7 @@ private:
   std::string m_matchName;
   bool m_offPathCache;
   bool m_hashOnLocation;
+  uint32_t m_PktType;
 
 };
 

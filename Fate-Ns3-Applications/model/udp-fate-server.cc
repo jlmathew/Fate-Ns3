@@ -31,6 +31,7 @@
 #include "ns3/socket-factory.h"
 #include "ns3/packet.h"
 #include "ns3/uinteger.h"
+#include "ns3/boolean.h"
 #include "ns3/PacketTypeBase.h"
 #include "ns3/fateIpv4-interface.h"
 #include "udp-fate-server.h"
@@ -66,7 +67,13 @@ UdpFateServer::GetTypeId (void)
                    "Exact Packet Name with minimal matching attributes",
                    StringValue (""),
                    MakeStringAccessor (&UdpFateServer::m_returnPath),
-                   MakeStringChecker ())  ;
+                   MakeStringChecker ()) 
+    .AddAttribute ("DropPacket", 
+                   "Drop packet instead of returning a data packet",
+                   BooleanValue (false),
+                   MakeBooleanAccessor (&UdpFateServer::m_dropPackets),
+                   MakeBooleanChecker ()) 
+;
   return tid;
 }
 void
@@ -186,6 +193,14 @@ UdpFateServer::HandleRead (Ptr<Socket> socket)
   Address from;
   while ((packet = socket->RecvFrom (from)))
     {
+	if (m_dropPackets) {
+      Address localAddress;
+      socket->GetSockName (localAddress);
+      return; 
+      //m_rxTrace (packet, from);
+      //m_rxTraceWithAddresses (packet, from, localAddress);
+
+        }
       if (InetSocketAddress::IsMatchingType (from))
         {
           NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<

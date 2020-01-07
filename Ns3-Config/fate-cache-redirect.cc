@@ -169,8 +169,6 @@ void setProducers(void) {
       matchName.append(out.str());
 
       echoServer.SetAttribute("MinMatchName", StringValue(matchName));
-      echoServer.SetAttribute("ReturnPath", StringValue("10.0.0.33;"));
-      //echoServer.SetAttribute("ReturnPath", StringValue("10.0.0.157;10.0.0.145;10.0.0.77;10.0.0.5;"));
       int p;
       if (nFiles >= numProd) {
         p = i % numProd;
@@ -216,8 +214,7 @@ void createConsumers(void) {
        PktType fatePkt;
        fatePkt.SetUnsignedNamedAttribute("TtlHop", 128);
        fatePkt.SetPacketPurpose(PktType::INTERESTPKT);
-       std::string cacheTrip="10.0.0.2;10.0.0.14;10.0.0.86;10.0.0.106;10.0.0.142";
-       //std::string cacheTrip="10.0.0.26;10.0.0.58;10.0.0.106;10.0.0.78;10.0.0.114;10.0.0.142";
+       std::string cacheTrip="10.0.0.13";
        cacheTrip.push_back(';');
        //cacheTrip.append("10.0.0.22");
        //cacheTrip += '\n';
@@ -246,8 +243,19 @@ void createConsumers(void) {
 void
 createAllCacheNodes()
 {
-//nonCachingNodes.Add(nodeb);
-nonCachingNodes=ns3::NodeContainer::GetGlobal();
+    Ptr<Node> node = nodes.Get(4); //4
+      cachingNodes.Add(node);
+
+    Ptr<Node> node1 = nodes.Get(1);  //1
+    Ptr<Node> node2 = nodes.Get(2);
+    Ptr<Node> node5 = nodes.Get(5);
+      nonCachingNodes.Add(node1);
+      nonCachingNodes.Add(node2);
+      nonCachingNodes.Add(node5);
+    Ptr<Node> nodea = nodes.Get(0);
+    Ptr<Node> nodeb = nodes.Get(3);
+      nonCachingNodes.Add(nodea);
+      nonCachingNodes.Add(nodeb);
 }
 
 void createFateNodes(const std::string &cConfig, const std::string &nConfig) {
@@ -255,7 +263,7 @@ void createFateNodes(const std::string &cConfig, const std::string &nConfig) {
       UtilityConfigXml config;
       config.FirstNodeFileConfig(cConfig);
       FateIpv4Helper helper;
-      helper.SetConfigFile(nConfig);
+      helper.SetConfigFile(cConfig);
       stats= new CustomStats;
       GlobalModule *global = new GlobalModule;
       GlobalModuleTimerNs3 *timer = new GlobalModuleTimerNs3;
@@ -269,7 +277,7 @@ void createFateNodes(const std::string &cConfig, const std::string &nConfig) {
       helper.Install(cachingNodes);
 
 //was cancelled out ... necessary?
-      //helper.SetConfigFile(nConfig);
+      helper.SetConfigFile(nConfig);
       helper.Install(nonCachingNodes);
 
    
@@ -418,7 +426,7 @@ main (int argc, char *argv[])
 Packet::EnablePrinting();
 Packet::EnableChecking();
   //input="scratch/ns3-ATT-topology.txt";
-  input="scratch/square.orb";
+  input="scratch/simple.orb";
   //std::string input("./Inet/inet.3200");
   format= "Orbis";
   //format= "Inet";
@@ -428,9 +436,11 @@ Packet::EnableChecking();
   //std::string input("./src/topology-read/examples/Orbis_toposample.txt");
   //std::string format ("Orbis");
   reqRate=1 ;//20;  //req in seconds
-  nProd=24;
+  nProd=3;
   //double nCons=100;
   nCons=1;
+  //std::string pTopo("Single"); //single, or random
+  //std::string cTopo("Edge"); //edge or random
   pTopo="Single"; //single, or random
   //std::string cTopo("Random"); //edge or random
   cTopo="Edge"; //edge or random
@@ -442,9 +452,9 @@ Packet::EnableChecking();
   alpha = 1;
   //std::string cConfig("");  //no config or name of xml file
    //cConfig="fateXmlConfigFiles/Ns3-node-configC.xml";  //no config or name of xml file
-   nConfig="fateXmlConfigFiles/Lru-reroute2.xml";  //no config or name of xml file
+   cConfig="fateXmlConfigFiles/Lru-reroute.xml";  //no config or name of xml file
   //std::string nConfig("");
-  cConfig="fateXmlConfigFiles/nocache.xml";
+  nConfig="fateXmlConfigFiles/nocache.xml";
   bool exclusiveContent=true; //either producers are exclusive in content or they all share the same
   numClientPerNodes=1;
    seed = 1;
@@ -493,7 +503,7 @@ Packet::EnableChecking();
   //Config::SetDefault ("ns3::DropTailQueue::MaxPackets", StringValue ("1000000")); 
   Config::SetDefault ("ns3::PointToPointChannel::Delay", StringValue ("1ms"));
       createTopology(input, format, reqRate);
-      create1Producers(nProd);
+      create1Producers(3);
 
 
     CreateDnsAssociation();

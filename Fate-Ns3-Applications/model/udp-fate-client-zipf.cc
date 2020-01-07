@@ -124,6 +124,10 @@ UdpFateZipfClient::GetTypeId (void)
                    BooleanValue (true),
                    MakeBooleanAccessor (&UdpFateZipfClient::m_hashOnLocation),
                    MakeBooleanChecker())
+    .AddAttribute ("PktType", "What Type of Packet to Send",
+                   UintegerValue ((int) PktType::INTERESTPKT),
+                   MakeUintegerAccessor (&UdpFateZipfClient::m_PktType),
+                   MakeUintegerChecker<uint32_t> ())
   ;
   return tid;
 }
@@ -396,7 +400,8 @@ UdpFateZipfClient::Send (void)
      m_payload.SetObjectCpyNamedAttribute("Timestamp", ns3::Simulator::Now());
   }
   m_payload.SetName(m_pktName);
-  m_payload.SetPacketPurpose(PktType::INTERESTPKT);
+  m_payload.SetPacketPurpose((PktType::PacketPurposeTypes_t) m_PktType);
+  //m_payload.SetPacketPurpose(PktType::INTERESTPKT);
   if (m_offPathCache)
   {
 	  //jlm TODO FIXME add binary option for 'how' to hash

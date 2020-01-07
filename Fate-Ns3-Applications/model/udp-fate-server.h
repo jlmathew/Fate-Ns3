@@ -90,7 +90,7 @@ private:
   uint64_t m_statTotalNotMatchTxSize;
   uint64_t m_statTotalIntRxSize;
   uint64_t m_statNumErrorPkts;
-  
+  bool m_dropPackets; 
 };
 
 } // namespace ns3
