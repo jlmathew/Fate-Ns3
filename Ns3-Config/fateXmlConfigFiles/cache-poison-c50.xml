@@ -7,11 +7,19 @@
   
   <UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="50"  ContentTypes="Icn" > <!--File" or "Icn"-->
     <Utility name="UTILITYBLOCK"  order="1" >
-      <Utility name="MULT" >
-	<Utility name="LRU" >
-		<Normalize normalizeName="NormalRanked" value_type="ceiling" />
-	</Utility>
+      <Utility name="IFTHENELSE" >
 	<Utility name="NormEval" attribName="SecurityEval" useTempAttribute="true" />
+	<Utility name="LRU" >
+		<!--Normalize normalizeName="NormalRanked" value_type="ceiling" /-->
+		<Normalize normalizeName="StepRanked" invert="false" />
+	</Utility>
+        <Utility name="MULT" >
+	  <Utility name="LRU" >
+		<!--Normalize normalizeName="NormalRanked" value_type="ceiling" /-->
+		<Normalize normalizeName="StepRanked" invert="false" />
+	  </Utility>
+          <Utility name="CONST" defaultValue="0.3" />
+        </Utility>
       </Utility>
     </Utility>
   </UtilityModule>

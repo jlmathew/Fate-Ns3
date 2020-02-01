@@ -2,6 +2,7 @@
 	<UtilityModule moduleName="CacheBasicManager" order="2" associatedStore="CacheStore" cacheSize="10"  ContentTypes="Icn" > <!--File" or "Icn"-->
     <Utility name="UTILITYBLOCK"  order="1" >
 	<Utility name="LRU" >
+		<!--Normalize normalizeName="StepRanked" value_type="ceiling" /-->
 		<Normalize normalizeName="NormalRanked" value_type="ceiling" />
 	</Utility>
     </Utility>
@@ -19,6 +20,6 @@
         <Utility name="NAMECHAIN" appendNodeName="true" m_defaultAttribute="Path:" nodeNamePartition=" ; " appendIfnExist="true" appendInFront="false"  nodeNameUnique="false"/>
     </Utility>
   </UtilityModule>
-  <Store  storeName="CacheBasicStore" name="CacheStore" size="16" storageMethod="MemMap"/>
+  <Store  storeName="CacheBasicStore" name="CacheStore" size="10" storageMethod="MemMap"/>
 </NodeModule>
 
