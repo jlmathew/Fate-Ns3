@@ -1,12 +1,14 @@
 #this may work, last tested on ns3.28
 #run this where you want ns3
-hg clone http://code.nsnam.org/ns-3-allinone
-cd ns-3-allinone && ./download.py
+#hg clone http://code.nsnam.org/ns-3-allinone
+#cd ns-3-allinone && ./download.py
 
-git clone https://github.com/jlmathew/Fate.git
-git clone https://github.com/jlmathew/Fate-Ns3.git
+#git clone https://github.com/jlmathew/Fate.git
+#put git files into Fate!
+#cp pugi* Fate/
+#git clone https://github.com/jlmathew/Fate-Ns3.git
 
-cd ns-3-dev/src
+cd ns-3.30.1/src
 ./create-module.py fate
 #update FATE
 cd fate/model
@@ -16,13 +18,12 @@ cd ns3
 ln -s ../../../../../Fate-Ns3/Fate-Ns3-Interface/* .
 
 cd ../../helper
-ln -s ../../../../../Fate-Ns3/Fate-Ns3-Support/* .
-
-cd ../../
+ln -s ../../../../Fate-Ns3/Fate-Ns3-Support/helper/* .
+cd ../..
 
 
 #update applications
-cd ../../applications/model/
+cd applications/model/
 ln -s ../../../../Fate-Ns3/Fate-Ns3-Applications/model/* .
 cd ../helper
 ln -s ../../../../Fate-Ns3/Fate-Ns3-Applications/helper/* .
@@ -78,7 +79,7 @@ sed -ie "s/$/',/" /tmp/app-helpc.tmp
 cat /tmp/apph.tmp /tmp/app-helph.tmp > /tmp/fate-apph.tmp
 cat /tmp/appc.tmp /tmp/app-helpc.tmp > /tmp/fate-appc.tmp
 
-cd ../../../ns-3-dev/src/fate/
+cd ../../../ns-3.30.1/src/fate/
 cp /tmp/fate-wafc.tmp tmp
 sed -i.bck "/fate.cc',/r tmp" wscript
 cp /tmp/fate-wafh.tmp tmp
@@ -100,12 +101,19 @@ cd ../network/model
 patch node.h < ../../../../Fate-Ns3/Ns3-Modified/node.h.3.28.patch
 patch node.cc < ../../../../Fate-Ns3/Ns3-Modified/node.cc.3.28.patch
 
-#add scratch files
-
-#add xml files!
 
 # rerun waf
+cd ../../..
 
-./waf configure --enable-examples --enable-mpi --enable-tests
+#add scratch files
+cp ../Fate-Ns3/Ns3-Scratch/fate-cache-redirect.cc scratch/
+cp ../Fate-Ns3/Ns3-Scratch/simple.orb scratch/
+cp ../Fate-Ns3/Ns3-Scratch/single-cache.cc scratch/
+cp ../Fate-Ns3/Ns3-Scratch/single-cache.orb scratch/
 
-#./waf
+mkdir logs
+
+#add xml files!
+ln -s ../Fate-Ns3/Ns3-Config/fateXmlConfigFiles fateXmlConfigFiles
+./waf configure --enable-examples 
+#ls -1 ../../../Fate-Ns3/Fate-Ns3-Applications/model/* |  sed 's#.*/##' 
